@@ -1,6 +1,6 @@
-﻿namespace Pied_Piper.DTOs
+namespace Pied_Piper.DTOs
 {
-    public class EventDTO
+    public class EventDetailsDto
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
@@ -10,6 +10,6 @@
         public string Location { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public string? ImageUrl { get; set; }
-        public string EventType { get; set; } = string.Empty;
+        public int EventTypeId { get; set; }
     }
 }

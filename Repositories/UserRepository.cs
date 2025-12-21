@@ -1,5 +1,6 @@
 ﻿using Pied_Piper.Data;
 using Pied_Piper.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Pied_Piper.Repositories
 {
