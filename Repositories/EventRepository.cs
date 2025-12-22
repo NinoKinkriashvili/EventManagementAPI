@@ -16,7 +16,11 @@ namespace Pied_Piper.Repositories
         public async Task<IEnumerable<Event>> GetAllAsync()
         {
             return await _context.Events
-
+                .Include(e => e.EventType)
+                .Include(e => e.Registrations)
+                    .ThenInclude(r => r.Status)
+                .Include(e => e.EventTags)
+                    .ThenInclude(et => et.Tag)
                 .Where(e => e.IsActive)
                 .ToListAsync();
         }
@@ -27,13 +31,26 @@ namespace Pied_Piper.Repositories
                 .FirstOrDefaultAsync(e => e.Id == id && e.IsActive);
         }
 
+        //public async Task<Event?> GetByIdWithDetailsAsync(int id)
+        //{
+        //    return await _context.Events
+        //        .Include(e => e.EventType)
+        //        .Include(e => e.EventTags)
+        //            .ThenInclude(et => et.Tag)
+        //        .Include(e => e.Registrations)
+        //            .ThenInclude(r => r.Status)
+        //        .FirstOrDefaultAsync(e => e.Id == id && e.IsActive);
+        //}
+
         public async Task<Event?> GetByIdWithDetailsAsync(int id)
         {
             return await _context.Events
                 .Include(e => e.EventType)
                 .Include(e => e.EventTags)
-                .ThenInclude(et => et.Tag)
+                    .ThenInclude(et => et.Tag)
                 .Include(e => e.Registrations)
+                    .ThenInclude(r => r.Status)
+                .Include(e => e.CreatedBy)  // Add this line!
                 .FirstOrDefaultAsync(e => e.Id == id && e.IsActive);
         }
 
@@ -54,7 +71,6 @@ namespace Pied_Piper.Repositories
         {
             var ev = await GetByIdAsync(id);
             if (ev == null) return;
-
             ev.IsActive = false;
             await _context.SaveChangesAsync();
         }
@@ -62,11 +78,16 @@ namespace Pied_Piper.Repositories
         public async Task<IEnumerable<Event>> GetUpcomingAsync()
         {
             return await _context.Events
+                .Include(e => e.EventType)
+                .Include(e => e.Registrations)
+                    .ThenInclude(r => r.Status)
+                .Include(e => e.EventTags)
+                    .ThenInclude(et => et.Tag)
                 .Where(e => e.IsActive && e.StartDateTime > DateTime.UtcNow)
                 .OrderBy(e => e.StartDateTime)
                 .ToListAsync();
         }
-        
+
         public async Task<IEnumerable<EventType>> GetEventTypesAsync()
         {
             return await _context.EventTypes
