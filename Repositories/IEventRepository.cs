@@ -6,6 +6,11 @@ namespace Pied_Piper.Repositories
     {
         Task<IEnumerable<Event>> GetAllAsync();
         Task<Event?> GetByIdAsync(int id);
+        Task<Event?> GetByIdWithDetailsAsync(int id);
         Task<Event> CreateAsync(Event ev);
+        Task UpdateAsync(Event ev);
+        Task DeleteAsync(int id); // soft delete
+        Task<IEnumerable<Event>> GetUpcomingAsync();
+        Task<IEnumerable<EventType>> GetEventTypesAsync();
     }
 }

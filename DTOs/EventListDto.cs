@@ -1,25 +1,17 @@
 namespace Pied_Piper.DTOs;
 
-public class EventDetailsDto
+public class EventListDto
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string? Description { get; set; }
-
     public string EventTypeName { get; set; } = string.Empty;
-
     public DateTime StartDateTime { get; set; }
-    public DateTime EndDateTime { get; set; }
-
     public string Location { get; set; } = string.Empty;
     public int Capacity { get; set; }
 
-    public string? ImageUrl { get; set; }
-
     public int ConfirmedCount { get; set; }
-    public int WaitlistedCount { get; set; }
     public bool IsFull { get; set; }
 
+    public string? ImageUrl { get; set; }
     public List<string> Tags { get; set; } = new();
-    public string CreatedBy { get; set; } = string.Empty;
 }
