@@ -187,16 +187,16 @@ namespace Pied_Piper.Data
                 entity.HasIndex(et => et.Name)
                     .IsUnique();
 
-                // Seed data
-                entity.HasData(
-                    new EventType { Id = 1, Name = "Team Building", Description = "Team building activities", IsActive = true },
-                    new EventType { Id = 2, Name = "Sports", Description = "Sports events", IsActive = true },
-                    new EventType { Id = 3, Name = "Workshop", Description = "Educational workshops", IsActive = true },
-                    new EventType { Id = 4, Name = "Happy Friday", Description = "Friday celebrations", IsActive = true },
-                    new EventType { Id = 5, Name = "Cultural", Description = "Cultural events", IsActive = true },
-                    new EventType { Id = 6, Name = "Training", Description = "Training sessions", IsActive = true },
-                    new EventType { Id = 7, Name = "Social", Description = "Social gatherings", IsActive = true }
-                );
+                //// Seed data
+                //entity.HasData(
+                //    new EventType { Id = 1, Name = "Team Building", Description = "Team building activities", IsActive = true },
+                //    new EventType { Id = 2, Name = "Sports", Description = "Sports events", IsActive = true },
+                //    new EventType { Id = 3, Name = "Workshop", Description = "Educational workshops", IsActive = true },
+                //    new EventType { Id = 4, Name = "Happy Friday", Description = "Friday celebrations", IsActive = true },
+                //    new EventType { Id = 5, Name = "Cultural", Description = "Cultural events", IsActive = true },
+                //    new EventType { Id = 6, Name = "Training", Description = "Training sessions", IsActive = true },
+                //    new EventType { Id = 7, Name = "Social", Description = "Social gatherings", IsActive = true }
+                //);
             });
 
             // ============================================
@@ -216,12 +216,12 @@ namespace Pied_Piper.Data
                 entity.HasIndex(rs => rs.Name)
                     .IsUnique();
 
-                // Seed data
-                entity.HasData(
-                    new RegistrationStatus { Id = 1, Name = "Confirmed", Description = "Registration confirmed" },
-                    new RegistrationStatus { Id = 2, Name = "Waitlisted", Description = "On waiting list" },
-                    new RegistrationStatus { Id = 3, Name = "Cancelled", Description = "Registration cancelled" }
-                );
+                //// Seed data
+                //entity.HasData(
+                //    new RegistrationStatus { Id = 1, Name = "Confirmed", Description = "Registration confirmed" },
+                //    new RegistrationStatus { Id = 2, Name = "Waitlisted", Description = "On waiting list" },
+                //    new RegistrationStatus { Id = 3, Name = "Cancelled", Description = "Registration cancelled" }
+                //);
             });
 
             // ============================================
@@ -241,12 +241,12 @@ namespace Pied_Piper.Data
                 entity.HasIndex(r => r.Name)
                     .IsUnique();
 
-                // Seed data
-                entity.HasData(
-                    new Role { Id = 1, Name = "Employee", Description = "Regular employee" },
-                    new Role { Id = 2, Name = "Organizer", Description = "Event organizer" },
-                    new Role { Id = 3, Name = "Admin", Description = "System administrator" }
-                );
+                //// Seed data
+                //entity.HasData(
+                //    new Role { Id = 1, Name = "Employee", Description = "Regular employee" },
+                //    new Role { Id = 2, Name = "Organizer", Description = "Event organizer" },
+                //    new Role { Id = 3, Name = "Admin", Description = "System administrator" }
+                //);
             });
 
             // ============================================
@@ -266,18 +266,18 @@ namespace Pied_Piper.Data
                 entity.HasIndex(t => t.Name)
                     .IsUnique();
 
-                // Seed data
-                entity.HasData(
-                    new Tag { Id = 1, Name = "outdoor", Category = "location" },
-                    new Tag { Id = 2, Name = "indoor", Category = "location" },
-                    new Tag { Id = 3, Name = "free", Category = "cost" },
-                    new Tag { Id = 4, Name = "learning", Category = "type" },
-                    new Tag { Id = 5, Name = "wellness", Category = "type" },
-                    new Tag { Id = 6, Name = "food", Category = "amenity" },
-                    new Tag { Id = 7, Name = "remote friendly", Category = "accessibility" },
-                    new Tag { Id = 8, Name = "family friendly", Category = "accessibility" },
-                    new Tag { Id = 9, Name = "networking", Category = "type" }
-                );
+                //// Seed data
+                //entity.HasData(
+                //    new Tag { Id = 1, Name = "outdoor", Category = "location" },
+                //    new Tag { Id = 2, Name = "indoor", Category = "location" },
+                //    new Tag { Id = 3, Name = "free", Category = "cost" },
+                //    new Tag { Id = 4, Name = "learning", Category = "type" },
+                //    new Tag { Id = 5, Name = "wellness", Category = "type" },
+                //    new Tag { Id = 6, Name = "food", Category = "amenity" },
+                //    new Tag { Id = 7, Name = "remote friendly", Category = "accessibility" },
+                //    new Tag { Id = 8, Name = "family friendly", Category = "accessibility" },
+                //    new Tag { Id = 9, Name = "networking", Category = "type" }
+                //);
             });
         }
     }

@@ -27,11 +27,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Seed database
-using (var scope = app.Services.CreateScope())
+if (app.Environment.IsDevelopment())
 {
-    var services = scope.ServiceProvider;
-    SeedData.Initialize(services);
+    // Seed database
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        SeedData.Initialize(services);
+    }
 }
 
 // Pipeline
