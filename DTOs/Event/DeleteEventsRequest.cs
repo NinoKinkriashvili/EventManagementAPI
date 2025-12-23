@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Pied_Piper.DTOs
+namespace Pied_Piper.DTOs.Event
 {
     public class DeleteEventsRequest
     {

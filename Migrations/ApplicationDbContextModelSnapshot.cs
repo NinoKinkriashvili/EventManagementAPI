@@ -75,6 +75,36 @@ namespace Pied_Piper.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Pied_Piper.Models.Department", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Departments");
+                });
+
             modelBuilder.Entity("Pied_Piper.Models.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -295,31 +325,6 @@ namespace Pied_Piper.Migrations
                     b.ToTable("RegistrationStatuses");
                 });
 
-            modelBuilder.Entity("Pied_Piper.Models.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Roles");
-                });
-
             modelBuilder.Entity("Pied_Piper.Models.Speaker", b =>
                 {
                     b.Property<int>("Id")
@@ -390,6 +395,9 @@ namespace Pied_Piper.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -407,17 +415,15 @@ namespace Pied_Piper.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DepartmentId");
+
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
@@ -519,18 +525,23 @@ namespace Pied_Piper.Migrations
 
             modelBuilder.Entity("Pied_Piper.Models.User", b =>
                 {
-                    b.HasOne("Pied_Piper.Models.Role", "Role")
+                    b.HasOne("Pied_Piper.Models.Department", "Department")
                         .WithMany("Users")
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Role");
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("Pied_Piper.Models.Category", b =>
                 {
                     b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("Pied_Piper.Models.Department", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Pied_Piper.Models.Event", b =>
@@ -552,11 +563,6 @@ namespace Pied_Piper.Migrations
             modelBuilder.Entity("Pied_Piper.Models.RegistrationStatus", b =>
                 {
                     b.Navigation("Registrations");
-                });
-
-            modelBuilder.Entity("Pied_Piper.Models.Role", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Pied_Piper.Models.Tag", b =>

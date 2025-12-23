@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Pied_Piper.DTOs.Event;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pied_Piper.DTOs
 {

@@ -16,12 +16,12 @@ namespace Pied_Piper.Data
         public DbSet<User> Users { get; set; }
         public DbSet<EventType> EventTypes { get; set; }
         public DbSet<RegistrationStatus> RegistrationStatuses { get; set; }
-        public DbSet<Role> Roles { get; set; }
+        public DbSet<Department> Departments { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<EventTag> EventTags { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Speaker> Speakers { get; set; } // NEW
-        public DbSet<AgendaItem> AgendaItems { get; set; } // NEW
+        public DbSet<Speaker> Speakers { get; set; }
+        public DbSet<AgendaItem> AgendaItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -147,16 +147,20 @@ namespace Pied_Piper.Data
                     .IsRequired()
                     .HasMaxLength(200);
 
+                entity.Property(u => u.Password)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
                 entity.Property(u => u.IsActive)
                     .HasDefaultValue(true);
 
                 entity.Property(u => u.CreatedAt)
                     .HasDefaultValueSql("GETUTCDATE()");
 
-                // One-to-Many: Roles -> Users
-                entity.HasOne(u => u.Role)
-                    .WithMany(r => r.Users)
-                    .HasForeignKey(u => u.RoleId)
+                // One-to-Many: Departments -> Users
+                entity.HasOne(u => u.Department)
+                    .WithMany(d => d.Users)
+                    .HasForeignKey(u => u.DepartmentId)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 // Unique index on Email
@@ -302,20 +306,23 @@ namespace Pied_Piper.Data
             });
 
             // ============================================
-            // ROLE CONFIGURATION
+            // DEPARTMENT CONFIGURATION
             // ============================================
-            modelBuilder.Entity<Role>(entity =>
+            modelBuilder.Entity<Department>(entity =>
             {
-                entity.HasKey(r => r.Id);
+                entity.HasKey(d => d.Id);
 
-                entity.Property(r => r.Name)
+                entity.Property(d => d.Name)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(100);
 
-                entity.Property(r => r.Description)
-                    .HasMaxLength(200);
+                entity.Property(d => d.Description)
+                    .HasMaxLength(500);
 
-                entity.HasIndex(r => r.Name)
+                entity.Property(d => d.IsActive)
+                    .HasDefaultValue(true);
+
+                entity.HasIndex(d => d.Name)
                     .IsUnique();
             });
 

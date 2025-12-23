@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Pied_Piper.Repositories;
 using Pied_Piper.DTOs;
 using Pied_Piper.Models;
+using Pied_Piper.DTOs.Event;
 
 namespace Pied_Piper.Controllers
 {
@@ -63,6 +64,114 @@ namespace Pied_Piper.Controllers
                     Description = a.Description
                 }).ToList()
             });
+
+            return Ok(result);
+        }
+
+        [HttpGet("sorted-by-popularity")]
+        public async Task<IActionResult> GetAllSortedByPopularity()
+        {
+            var events = await _eventRepository.GetAllAsync();
+
+            var result = events
+                .Where(e => e.EndDateTime > DateTime.Now)
+                .Select(e => new EventDetailsDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    EventTypeName = e.EventType.Name,
+                    CategoryId = e.CategoryId,
+                    CategoryTitle = e.Category.Title,
+                    StartDateTime = e.StartDateTime,
+                    EndDateTime = e.EndDateTime,
+                    RegistrationDeadline = e.RegistrationDeadline,
+                    Location = e.Location,
+                    VenueName = e.VenueName,
+                    CurrentCapacity = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
+                    MinCapacity = e.MinCapacity,
+                    MaxCapacity = e.MaxCapacity,
+                    WaitlistEnabled = e.WaitlistEnabled,
+                    WaitlistCapacity = e.WaitlistCapacity,
+                    AutoApprove = e.AutoApprove,
+                    ImageUrl = e.ImageUrl,
+                    IsVisible = e.IsVisible,
+                    ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
+                    WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
+                    IsFull = e.Registrations.Count(r => r.Status.Name == "Confirmed") >= e.MaxCapacity,
+                    Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
+                    CreatedByName = e.CreatedBy.FullName,
+                    Speakers = e.Speakers.Select(s => new SpeakerDto
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Role = s.Role,
+                        PhotoUrl = s.PhotoUrl
+                    }).ToList(),
+                    Agenda = e.AgendaItems.Select(a => new AgendaItemDto
+                    {
+                        Id = a.Id,
+                        Time = a.Time,
+                        Title = a.Title,
+                        Description = a.Description
+                    }).ToList()
+                })
+                .OrderByDescending(e => e.ConfirmedCount) // Sort by most registrations first
+                .ToList();
+
+            return Ok(result);
+        }
+
+        [HttpGet("sorted-by-upcoming-date")]
+        public async Task<IActionResult> GetAllSortedByUpcomingDate()
+        {
+            var events = await _eventRepository.GetAllAsync();
+
+            var result = events
+                .Where(e => e.EndDateTime > DateTime.Now)
+                .Select(e => new EventDetailsDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    EventTypeName = e.EventType.Name,
+                    CategoryId = e.CategoryId,
+                    CategoryTitle = e.Category.Title,
+                    StartDateTime = e.StartDateTime,
+                    EndDateTime = e.EndDateTime,
+                    RegistrationDeadline = e.RegistrationDeadline,
+                    Location = e.Location,
+                    VenueName = e.VenueName,
+                    CurrentCapacity = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
+                    MinCapacity = e.MinCapacity,
+                    MaxCapacity = e.MaxCapacity,
+                    WaitlistEnabled = e.WaitlistEnabled,
+                    WaitlistCapacity = e.WaitlistCapacity,
+                    AutoApprove = e.AutoApprove,
+                    ImageUrl = e.ImageUrl,
+                    IsVisible = e.IsVisible,
+                    ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
+                    WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
+                    IsFull = e.Registrations.Count(r => r.Status.Name == "Confirmed") >= e.MaxCapacity,
+                    Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
+                    CreatedByName = e.CreatedBy.FullName,
+                    Speakers = e.Speakers.Select(s => new SpeakerDto
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Role = s.Role,
+                        PhotoUrl = s.PhotoUrl
+                    }).ToList(),
+                    Agenda = e.AgendaItems.Select(a => new AgendaItemDto
+                    {
+                        Id = a.Id,
+                        Time = a.Time,
+                        Title = a.Title,
+                        Description = a.Description
+                    }).ToList()
+                })
+                .OrderBy(e => e.StartDateTime) // Sort by earliest date first
+                .ToList();
 
             return Ok(result);
         }
