@@ -113,5 +113,22 @@ namespace Pied_Piper.Repositories
             return await _context.Categories
                 .FirstOrDefaultAsync(c => c.Title.ToLower() == title.ToLower());
         }
+
+        public async Task<IEnumerable<Event>> GetAllIncludingHiddenAsync()
+        {
+            return await _context.Events
+                .Include(e => e.EventType)
+                .Include(e => e.Category)
+                .Include(e => e.Registrations)
+                    .ThenInclude(r => r.Status)
+                .Include(e => e.EventTags)
+                    .ThenInclude(et => et.Tag)
+                .Include(e => e.CreatedBy)
+                .Include(e => e.Speakers)
+                .Include(e => e.AgendaItems)
+                .Where(e => e.IsActive) // Only filter by IsActive, include hidden (IsVisible = false)
+                .OrderByDescending(e => e.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

@@ -15,5 +15,6 @@ namespace Pied_Piper.Repositories
         Task<IEnumerable<Category>> GetCategoriesAsync(); // NEW
         Task<EventType?> GetEventTypeByNameAsync(string name);
         Task<Category?> GetCategoryByTitleAsync(string title);
+        Task<IEnumerable<Event>> GetAllIncludingHiddenAsync();
     }
 }
