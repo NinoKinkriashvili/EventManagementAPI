@@ -12,5 +12,8 @@ namespace Pied_Piper.Repositories
         Task DeleteAsync(int id); // soft delete
         Task<IEnumerable<Event>> GetUpcomingAsync();
         Task<IEnumerable<EventType>> GetEventTypesAsync();
+        Task<IEnumerable<Category>> GetCategoriesAsync(); // NEW
+        Task<EventType?> GetEventTypeByNameAsync(string name);
+        Task<Category?> GetCategoryByTitleAsync(string title);
     }
 }

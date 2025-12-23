@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Pied_Piper.Migrations
 {
     /// <inheritdoc />
@@ -13,6 +11,19 @@ namespace Pied_Piper.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "EventTypes",
                 columns: table => new
@@ -103,12 +114,20 @@ namespace Pied_Piper.Migrations
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(MAX)", nullable: true),
                     EventTypeId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
                     StartDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RegistrationDeadline = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    VenueName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    MinCapacity = table.Column<int>(type: "int", nullable: false),
+                    MaxCapacity = table.Column<int>(type: "int", nullable: false),
+                    WaitlistEnabled = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    WaitlistCapacity = table.Column<int>(type: "int", nullable: true),
+                    AutoApprove = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    IsVisible = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CreatedById = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
@@ -116,6 +135,12 @@ namespace Pied_Piper.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Events", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Events_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Events_EventTypes_EventTypeId",
                         column: x => x.EventTypeId,
@@ -128,6 +153,28 @@ namespace Pied_Piper.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AgendaItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    Time = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AgendaItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AgendaItems_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -191,55 +238,43 @@ namespace Pied_Piper.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.InsertData(
-                table: "EventTypes",
-                columns: new[] { "Id", "Description", "IsActive", "Name" },
-                values: new object[,]
+            migrationBuilder.CreateTable(
+                name: "Speakers",
+                columns: table => new
                 {
-                    { 1, "Team building activities", true, "Team Building" },
-                    { 2, "Sports events", true, "Sports" },
-                    { 3, "Educational workshops", true, "Workshop" },
-                    { 4, "Friday celebrations", true, "Happy Friday" },
-                    { 5, "Cultural events", true, "Cultural" },
-                    { 6, "Training sessions", true, "Training" },
-                    { 7, "Social gatherings", true, "Social" }
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PhotoUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Speakers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Speakers_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "RegistrationStatuses",
-                columns: new[] { "Id", "Description", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Registration confirmed", "Confirmed" },
-                    { 2, "On waiting list", "Waitlisted" },
-                    { 3, "Registration cancelled", "Cancelled" }
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_AgendaItems_EventId",
+                table: "AgendaItems",
+                column: "EventId");
 
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "Id", "Description", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Regular employee", "Employee" },
-                    { 2, "Event organizer", "Organizer" },
-                    { 3, "System administrator", "Admin" }
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_Title",
+                table: "Categories",
+                column: "Title",
+                unique: true);
 
-            migrationBuilder.InsertData(
-                table: "Tags",
-                columns: new[] { "Id", "Category", "Name" },
-                values: new object[,]
-                {
-                    { 1, "location", "outdoor" },
-                    { 2, "location", "indoor" },
-                    { 3, "cost", "free" },
-                    { 4, "type", "learning" },
-                    { 5, "type", "wellness" },
-                    { 6, "amenity", "food" },
-                    { 7, "accessibility", "remote friendly" },
-                    { 8, "accessibility", "family friendly" },
-                    { 9, "type", "networking" }
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_CategoryId",
+                table: "Events",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_CreatedById",
@@ -309,6 +344,11 @@ namespace Pied_Piper.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Speakers_EventId",
+                table: "Speakers",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tags_Name",
                 table: "Tags",
                 column: "Name",
@@ -330,19 +370,28 @@ namespace Pied_Piper.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AgendaItems");
+
+            migrationBuilder.DropTable(
                 name: "EventTags");
 
             migrationBuilder.DropTable(
                 name: "Registrations");
 
             migrationBuilder.DropTable(
+                name: "Speakers");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "RegistrationStatuses");
 
             migrationBuilder.DropTable(
                 name: "Events");
 
             migrationBuilder.DropTable(
-                name: "RegistrationStatuses");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "EventTypes");

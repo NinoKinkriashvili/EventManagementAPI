@@ -19,6 +19,9 @@ namespace Pied_Piper.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<EventTag> EventTags { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Speaker> Speakers { get; set; } // NEW
+        public DbSet<AgendaItem> AgendaItems { get; set; } // NEW
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,10 +45,23 @@ namespace Pied_Piper.Data
                     .IsRequired()
                     .HasMaxLength(200);
 
+                entity.Property(e => e.VenueName)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
                 entity.Property(e => e.ImageUrl)
                     .HasMaxLength(500);
 
                 entity.Property(e => e.IsActive)
+                    .HasDefaultValue(true);
+
+                entity.Property(e => e.IsVisible)
+                    .HasDefaultValue(true);
+
+                entity.Property(e => e.WaitlistEnabled)
+                    .HasDefaultValue(true);
+
+                entity.Property(e => e.AutoApprove)
                     .HasDefaultValue(true);
 
                 entity.Property(e => e.CreatedAt)
@@ -60,6 +76,12 @@ namespace Pied_Piper.Data
                     .HasForeignKey(e => e.EventTypeId)
                     .OnDelete(DeleteBehavior.Restrict);
 
+                // One-to-Many: Categories -> Events
+                entity.HasOne(e => e.Category)
+                    .WithMany(c => c.Events)
+                    .HasForeignKey(e => e.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 // One-to-Many: Users -> Events (CreatedBy)
                 entity.HasOne(e => e.CreatedBy)
                     .WithMany(u => u.CreatedEvents)
@@ -70,6 +92,7 @@ namespace Pied_Piper.Data
                 entity.HasIndex(e => new { e.EventTypeId, e.StartDateTime, e.IsActive });
                 entity.HasIndex(e => e.StartDateTime)
                     .HasFilter("[IsActive] = 1");
+                entity.HasIndex(e => e.CategoryId);
             });
 
             // ============================================
@@ -168,6 +191,78 @@ namespace Pied_Piper.Data
             });
 
             // ============================================
+            // CATEGORY CONFIGURATION
+            // ============================================
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+
+                entity.Property(c => c.Title)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                // Unique index on Title
+                entity.HasIndex(c => c.Title)
+                    .IsUnique();
+            });
+
+            // ============================================
+            // SPEAKER CONFIGURATION
+            // ============================================
+            modelBuilder.Entity<Speaker>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(s => s.Role)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(s => s.PhotoUrl)
+                    .HasMaxLength(500);
+
+                // One-to-Many: Events -> Speakers
+                entity.HasOne(s => s.Event)
+                    .WithMany(e => e.Speakers)
+                    .HasForeignKey(s => s.EventId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Index for querying by event
+                entity.HasIndex(s => s.EventId);
+            });
+
+            // ============================================
+            // AGENDA ITEM CONFIGURATION
+            // ============================================
+            modelBuilder.Entity<AgendaItem>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+
+                entity.Property(a => a.Time)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(a => a.Title)
+                    .IsRequired()
+                    .HasMaxLength(300);
+
+                entity.Property(a => a.Description)
+                    .HasMaxLength(1000);
+
+                // One-to-Many: Events -> AgendaItems
+                entity.HasOne(a => a.Event)
+                    .WithMany(e => e.AgendaItems)
+                    .HasForeignKey(a => a.EventId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Index for querying by event
+                entity.HasIndex(a => a.EventId);
+            });
+
+            // ============================================
             // EVENT TYPE CONFIGURATION
             // ============================================
             modelBuilder.Entity<EventType>(entity =>
@@ -186,17 +281,6 @@ namespace Pied_Piper.Data
 
                 entity.HasIndex(et => et.Name)
                     .IsUnique();
-
-                //// Seed data
-                //entity.HasData(
-                //    new EventType { Id = 1, Name = "Team Building", Description = "Team building activities", IsActive = true },
-                //    new EventType { Id = 2, Name = "Sports", Description = "Sports events", IsActive = true },
-                //    new EventType { Id = 3, Name = "Workshop", Description = "Educational workshops", IsActive = true },
-                //    new EventType { Id = 4, Name = "Happy Friday", Description = "Friday celebrations", IsActive = true },
-                //    new EventType { Id = 5, Name = "Cultural", Description = "Cultural events", IsActive = true },
-                //    new EventType { Id = 6, Name = "Training", Description = "Training sessions", IsActive = true },
-                //    new EventType { Id = 7, Name = "Social", Description = "Social gatherings", IsActive = true }
-                //);
             });
 
             // ============================================
@@ -215,13 +299,6 @@ namespace Pied_Piper.Data
 
                 entity.HasIndex(rs => rs.Name)
                     .IsUnique();
-
-                //// Seed data
-                //entity.HasData(
-                //    new RegistrationStatus { Id = 1, Name = "Confirmed", Description = "Registration confirmed" },
-                //    new RegistrationStatus { Id = 2, Name = "Waitlisted", Description = "On waiting list" },
-                //    new RegistrationStatus { Id = 3, Name = "Cancelled", Description = "Registration cancelled" }
-                //);
             });
 
             // ============================================
@@ -240,13 +317,6 @@ namespace Pied_Piper.Data
 
                 entity.HasIndex(r => r.Name)
                     .IsUnique();
-
-                //// Seed data
-                //entity.HasData(
-                //    new Role { Id = 1, Name = "Employee", Description = "Regular employee" },
-                //    new Role { Id = 2, Name = "Organizer", Description = "Event organizer" },
-                //    new Role { Id = 3, Name = "Admin", Description = "System administrator" }
-                //);
             });
 
             // ============================================
@@ -265,21 +335,7 @@ namespace Pied_Piper.Data
 
                 entity.HasIndex(t => t.Name)
                     .IsUnique();
-
-                //// Seed data
-                //entity.HasData(
-                //    new Tag { Id = 1, Name = "outdoor", Category = "location" },
-                //    new Tag { Id = 2, Name = "indoor", Category = "location" },
-                //    new Tag { Id = 3, Name = "free", Category = "cost" },
-                //    new Tag { Id = 4, Name = "learning", Category = "type" },
-                //    new Tag { Id = 5, Name = "wellness", Category = "type" },
-                //    new Tag { Id = 6, Name = "food", Category = "amenity" },
-                //    new Tag { Id = 7, Name = "remote friendly", Category = "accessibility" },
-                //    new Tag { Id = 8, Name = "family friendly", Category = "accessibility" },
-                //    new Tag { Id = 9, Name = "networking", Category = "type" }
-                //);
             });
         }
     }
-
 }

@@ -17,11 +17,15 @@ namespace Pied_Piper.Repositories
         {
             return await _context.Events
                 .Include(e => e.EventType)
+                .Include(e => e.Category)
                 .Include(e => e.Registrations)
                     .ThenInclude(r => r.Status)
                 .Include(e => e.EventTags)
                     .ThenInclude(et => et.Tag)
-                .Where(e => e.IsActive)
+                .Include(e => e.CreatedBy)      // ADD THIS
+                .Include(e => e.Speakers)       // ADD THIS
+                .Include(e => e.AgendaItems)    // ADD THIS
+                .Where(e => e.IsActive && e.IsVisible)
                 .ToListAsync();
         }
 
@@ -31,26 +35,18 @@ namespace Pied_Piper.Repositories
                 .FirstOrDefaultAsync(e => e.Id == id && e.IsActive);
         }
 
-        //public async Task<Event?> GetByIdWithDetailsAsync(int id)
-        //{
-        //    return await _context.Events
-        //        .Include(e => e.EventType)
-        //        .Include(e => e.EventTags)
-        //            .ThenInclude(et => et.Tag)
-        //        .Include(e => e.Registrations)
-        //            .ThenInclude(r => r.Status)
-        //        .FirstOrDefaultAsync(e => e.Id == id && e.IsActive);
-        //}
-
         public async Task<Event?> GetByIdWithDetailsAsync(int id)
         {
             return await _context.Events
                 .Include(e => e.EventType)
+                .Include(e => e.Category)
                 .Include(e => e.EventTags)
                     .ThenInclude(et => et.Tag)
                 .Include(e => e.Registrations)
                     .ThenInclude(r => r.Status)
-                .Include(e => e.CreatedBy)  // Add this line!
+                .Include(e => e.CreatedBy)
+                .Include(e => e.Speakers) // NEW
+                .Include(e => e.AgendaItems) // NEW
                 .FirstOrDefaultAsync(e => e.Id == id && e.IsActive);
         }
 
@@ -71,6 +67,7 @@ namespace Pied_Piper.Repositories
         {
             var ev = await GetByIdAsync(id);
             if (ev == null) return;
+
             ev.IsActive = false;
             await _context.SaveChangesAsync();
         }
@@ -79,6 +76,7 @@ namespace Pied_Piper.Repositories
         {
             return await _context.Events
                 .Include(e => e.EventType)
+                .Include(e => e.Category) // NEW
                 .Include(e => e.Registrations)
                     .ThenInclude(r => r.Status)
                 .Include(e => e.EventTags)
@@ -93,6 +91,27 @@ namespace Pied_Piper.Repositories
             return await _context.EventTypes
                 .Where(e => e.IsActive)
                 .ToListAsync();
+        }
+
+        // NEW: Get all categories with event count
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            return await _context.Categories
+                .Include(c => c.Events) // Include events for counting
+                .OrderBy(c => c.Title)
+                .ToListAsync();
+        }
+
+        public async Task<EventType?> GetEventTypeByNameAsync(string name)
+        {
+            return await _context.EventTypes
+                .FirstOrDefaultAsync(et => et.Name.ToLower() == name.ToLower());
+        }
+
+        public async Task<Category?> GetCategoryByTitleAsync(string title)
+        {
+            return await _context.Categories
+                .FirstOrDefaultAsync(c => c.Title.ToLower() == title.ToLower());
         }
     }
 }

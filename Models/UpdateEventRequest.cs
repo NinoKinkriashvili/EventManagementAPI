@@ -1,8 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Pied_Piper.DTOs
 {
-    public class CreateEventRequest
+    public class UpdateEventRequest
     {
         [Required]
         [MaxLength(200)]
@@ -34,7 +34,7 @@ namespace Pied_Piper.DTOs
 
         //[Required]
         //[Range(1, 10000)]
-        //public int Capacity { get; set; }  
+        //public int Capacity { get; set; }
 
         [Required]
         [Range(1, 10000)]
@@ -50,7 +50,6 @@ namespace Pied_Piper.DTOs
         public bool AutoApprove { get; set; } = true;
 
         public string? ImageUrl { get; set; }
-        public bool IsVisible { get; set; } = true; // NEW
 
         public List<int> TagIds { get; set; } = new();
 
