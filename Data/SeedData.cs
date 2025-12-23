@@ -17,7 +17,7 @@ namespace Pied_Piper.Data
             }
 
             // ============================================
-            // Seed Event Types
+            // Seed Event Types (delivery mode)
             // ============================================
             var eventTypes = new EventType[]
             {
@@ -29,7 +29,7 @@ namespace Pied_Piper.Data
             context.SaveChanges();
 
             // ============================================
-            // Seed Categories
+            // Seed Categories (activity type)
             // ============================================
             var categories = new Category[]
             {
@@ -62,11 +62,13 @@ namespace Pied_Piper.Data
             // ============================================
             var departments = new Department[]
             {
-                new Department { Name = "Engineering", Description = "Software development and technical teams", IsActive = true },
-                new Department { Name = "Human Resources", Description = "HR and people operations", IsActive = true },
+                new Department { Name = "Engineering", Description = "Software development and engineering", IsActive = true },
                 new Department { Name = "Marketing", Description = "Marketing and communications", IsActive = true },
                 new Department { Name = "Sales", Description = "Sales and business development", IsActive = true },
-                new Department { Name = "Administration", Description = "Administrative and management", IsActive = true }
+                new Department { Name = "HR", Description = "Human resources", IsActive = true },
+                new Department { Name = "Finance", Description = "Finance and accounting", IsActive = true },
+                new Department { Name = "Operations", Description = "Operations and logistics", IsActive = true },
+                new Department { Name = "General", Description = "General staff", IsActive = true }
             };
             context.Departments.AddRange(departments);
             context.SaveChanges();
@@ -98,16 +100,16 @@ namespace Pied_Piper.Data
                     Email = "admin@company.com",
                     FullName = "Admin User",
                     Password = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-                    DepartmentId = departments.First(d => d.Name == "Administration").Id,
-                    IsActive = true
+                    DepartmentId = departments.First(d => d.Name == "Engineering").Id,
+                    IsAdmin = true // Admin user
                 },
                 new User
                 {
                     Email = "organizer@company.com",
                     FullName = "Event Organizer",
                     Password = BCrypt.Net.BCrypt.HashPassword("Organizer123!"),
-                    DepartmentId = departments.First(d => d.Name == "Human Resources").Id,
-                    IsActive = true
+                    DepartmentId = departments.First(d => d.Name == "HR").Id,
+                    IsAdmin = true // Also admin
                 },
                 new User
                 {
@@ -115,7 +117,7 @@ namespace Pied_Piper.Data
                     FullName = "John Doe",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
                     DepartmentId = departments.First(d => d.Name == "Engineering").Id,
-                    IsActive = true
+                    IsAdmin = false // Regular user
                 },
                 new User
                 {
@@ -123,7 +125,7 @@ namespace Pied_Piper.Data
                     FullName = "Jane Smith",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
                     DepartmentId = departments.First(d => d.Name == "Marketing").Id,
-                    IsActive = true
+                    IsAdmin = false // Regular user
                 },
                 new User
                 {
@@ -131,47 +133,7 @@ namespace Pied_Piper.Data
                     FullName = "Mike Wilson",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
                     DepartmentId = departments.First(d => d.Name == "Sales").Id,
-                    IsActive = true
-                },
-                new User
-                {
-                    Email = "sarah.johnson@company.com",
-                    FullName = "Sarah Johnson",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    DepartmentId = departments.First(d => d.Name == "Engineering").Id,
-                    IsActive = true
-                },
-                new User
-                {
-                    Email = "david.brown@company.com",
-                    FullName = "David Brown",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    DepartmentId = departments.First(d => d.Name == "Marketing").Id,
-                    IsActive = true
-                },
-                new User
-                {
-                    Email = "emily.davis@company.com",
-                    FullName = "Emily Davis",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    DepartmentId = departments.First(d => d.Name == "Sales").Id,
-                    IsActive = true
-                },
-                new User
-                {
-                    Email = "robert.garcia@company.com",
-                    FullName = "Robert Garcia",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    DepartmentId = departments.First(d => d.Name == "Engineering").Id,
-                    IsActive = true
-                },
-                new User
-                {
-                    Email = "lisa.martinez@company.com",
-                    FullName = "Lisa Martinez",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    DepartmentId = departments.First(d => d.Name == "Human Resources").Id,
-                    IsActive = true
+                    IsAdmin = false // Regular user
                 }
             };
             context.Users.AddRange(users);
@@ -182,13 +144,8 @@ namespace Pied_Piper.Data
             var johnDoe = users[2];
             var janeSmith = users[3];
             var mikeWilson = users[4];
-            var sarahJohnson = users[5];
-            var davidBrown = users[6];
-            var emilyDavis = users[7];
-            var robertGarcia = users[8];
-            var lisaMartinez = users[9];
 
-            // Get references
+            // Get references for easy access
             var inPersonType = eventTypes.First(et => et.Name == "In-Person");
             var virtualType = eventTypes.First(et => et.Name == "Virtual");
             var hybridType = eventTypes.First(et => et.Name == "Hybrid");
@@ -202,133 +159,27 @@ namespace Pied_Piper.Data
             var wellnessCategory = categories.First(c => c.Title == "Wellness");
             var networkingCategory = categories.First(c => c.Title == "Networking");
 
-            var now = DateTime.UtcNow;
-
             // ============================================
-            // Create MIXED DATES Events (Past, Current, Future)
+            // Create FUTURE Events (2026)
             // ============================================
             var events = new Event[]
             {
-                // PAST EVENTS (for history)
+                // January 2026
                 new Event
                 {
-                    Title = "Year-End Party 2024",
-                    Description = "Celebrate the end of 2024 with colleagues",
-                    EventTypeId = inPersonType.Id,
+                    Title = "New Year Kickoff Meeting",
+                    Description = "Start the year with team alignment and goal setting",
+                    EventTypeId = hybridType.Id,
                     CategoryId = socialCategory.Id,
-                    StartDateTime = now.AddDays(-60),
-                    EndDateTime = now.AddDays(-60).AddHours(4),
-                    RegistrationDeadline = now.AddDays(-65),
-                    Location = "Grand Hotel",
-                    VenueName = "Ballroom",
-                    MinCapacity = 50,
-                    MaxCapacity = 150,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 30,
-                    AutoApprove = true,
-                    IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
-                    CreatedById = organizerUser.Id
-                },
-                new Event
-                {
-                    Title = "Docker & Kubernetes Workshop",
-                    Description = "Container orchestration fundamentals",
-                    EventTypeId = virtualType.Id,
-                    CategoryId = workshopCategory.Id,
-                    StartDateTime = now.AddDays(-30),
-                    EndDateTime = now.AddDays(-30).AddHours(3),
-                    RegistrationDeadline = now.AddDays(-35),
-                    Location = "Online",
-                    VenueName = "Zoom",
-                    MinCapacity = 15,
-                    MaxCapacity = 60,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 15,
-                    AutoApprove = true,
-                    IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1605745341112-85968b19335b",
-                    CreatedById = adminUser.Id
-                },
-
-                // UPCOMING EVENTS (Next 7 days - MOST POPULAR)
-                new Event
-                {
-                    Title = "New Year Team Lunch 2025",
-                    Description = "Start the new year together with a team lunch",
-                    EventTypeId = inPersonType.Id,
-                    CategoryId = socialCategory.Id,
-                    StartDateTime = now.AddDays(2),
-                    EndDateTime = now.AddDays(2).AddHours(2),
-                    RegistrationDeadline = now.AddDays(1),
-                    Location = "Downtown Restaurant",
-                    VenueName = "Sky View Restaurant",
-                    MinCapacity = 20,
-                    MaxCapacity = 80,
+                    StartDateTime = new DateTime(2026, 1, 5, 10, 0, 0),
+                    EndDateTime = new DateTime(2026, 1, 5, 12, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 1, 3, 23, 59, 59),
+                    Location = "Main Office Building",
+                    VenueName = "Grand Conference Room",
+                    MinCapacity = 30,
+                    MaxCapacity = 100,
                     WaitlistEnabled = true,
                     WaitlistCapacity = 20,
-                    AutoApprove = true,
-                    IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0",
-                    CreatedById = organizerUser.Id
-                },
-                new Event
-                {
-                    Title = "Introduction to AI & Machine Learning",
-                    Description = "Beginner-friendly AI workshop",
-                    EventTypeId = hybridType.Id,
-                    CategoryId = workshopCategory.Id,
-                    StartDateTime = now.AddDays(3),
-                    EndDateTime = now.AddDays(3).AddHours(4),
-                    RegistrationDeadline = now.AddDays(2),
-                    Location = "Main Office",
-                    VenueName = "Conference Room A",
-                    MinCapacity = 15,
-                    MaxCapacity = 50,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 15,
-                    AutoApprove = true,
-                    IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1677442136019-21780ecad995",
-                    CreatedById = adminUser.Id
-                },
-                new Event
-                {
-                    Title = "Friday Yoga Session",
-                    Description = "Relax and unwind with yoga",
-                    EventTypeId = inPersonType.Id,
-                    CategoryId = wellnessCategory.Id,
-                    StartDateTime = now.AddDays(5),
-                    EndDateTime = now.AddDays(5).AddHours(1),
-                    RegistrationDeadline = now.AddDays(4),
-                    Location = "Wellness Center",
-                    VenueName = "Yoga Studio",
-                    MinCapacity = 10,
-                    MaxCapacity = 25,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 10,
-                    AutoApprove = true,
-                    IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
-                    CreatedById = organizerUser.Id
-                },
-
-                // NEAR FUTURE (Next 2 weeks)
-                new Event
-                {
-                    Title = "Company Town Hall Q1 2025",
-                    Description = "Quarterly updates and Q&A with leadership",
-                    EventTypeId = hybridType.Id,
-                    CategoryId = socialCategory.Id,
-                    StartDateTime = now.AddDays(10),
-                    EndDateTime = now.AddDays(10).AddHours(2),
-                    RegistrationDeadline = now.AddDays(8),
-                    Location = "Main Office",
-                    VenueName = "Auditorium",
-                    MinCapacity = 50,
-                    MaxCapacity = 200,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 50,
                     AutoApprove = true,
                     IsVisible = true,
                     ImageUrl = "https://images.unsplash.com/photo-1540575467063-178a50c2df87",
@@ -336,196 +187,388 @@ namespace Pied_Piper.Data
                 },
                 new Event
                 {
-                    Title = "Winter Sports Day",
-                    Description = "Indoor sports tournament and team games",
-                    EventTypeId = inPersonType.Id,
-                    CategoryId = sportsCategory.Id,
-                    StartDateTime = now.AddDays(14),
-                    EndDateTime = now.AddDays(14).AddHours(6),
-                    RegistrationDeadline = now.AddDays(12),
-                    Location = "Sports Complex",
-                    VenueName = "Indoor Arena",
-                    MinCapacity = 30,
-                    MaxCapacity = 70,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 20,
-                    AutoApprove = true,
-                    IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1546519638-68e109498ffc",
-                    CreatedById = organizerUser.Id
-                },
-
-                // FUTURE EVENTS (Next month+)
-                new Event
-                {
-                    Title = "Leadership Training Program",
-                    Description = "Develop your leadership skills",
-                    EventTypeId = hybridType.Id,
-                    CategoryId = trainingCategory.Id,
-                    StartDateTime = now.AddDays(30),
-                    EndDateTime = now.AddDays(30).AddHours(8),
-                    RegistrationDeadline = now.AddDays(25),
-                    Location = "Training Center",
-                    VenueName = "Seminar Hall",
-                    MinCapacity = 20,
-                    MaxCapacity = 40,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 10,
-                    AutoApprove = false,
-                    IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1552664730-d307ca884978",
-                    CreatedById = adminUser.Id
-                },
-                new Event
-                {
-                    Title = "React & Next.js Workshop",
-                    Description = "Modern web development with React 19",
+                    Title = "Python for Beginners Workshop",
+                    Description = "Learn Python programming from scratch",
                     EventTypeId = virtualType.Id,
                     CategoryId = workshopCategory.Id,
-                    StartDateTime = now.AddDays(45),
-                    EndDateTime = now.AddDays(45).AddHours(5),
-                    RegistrationDeadline = now.AddDays(40),
+                    StartDateTime = new DateTime(2026, 1, 12, 14, 0, 0),
+                    EndDateTime = new DateTime(2026, 1, 12, 17, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 1, 10, 23, 59, 59),
                     Location = "Online",
-                    VenueName = "Microsoft Teams",
-                    MinCapacity = 15,
+                    VenueName = "Zoom Virtual Room",
+                    MinCapacity = 10,
+                    MaxCapacity = 50,
+                    WaitlistEnabled = false,
+                    WaitlistCapacity = null,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
+                    CreatedById = organizerUser.Id
+                },
+                
+                // February 2026
+                new Event
+                {
+                    Title = "Valentine's Day Team Lunch",
+                    Description = "Celebrate Valentine's Day with your colleagues",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = socialCategory.Id,
+                    StartDateTime = new DateTime(2026, 2, 14, 12, 0, 0),
+                    EndDateTime = new DateTime(2026, 2, 14, 14, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 2, 12, 23, 59, 59),
+                    Location = "Downtown Restaurant District",
+                    VenueName = "Bella Vista Restaurant",
+                    MinCapacity = 20,
                     MaxCapacity = 60,
                     WaitlistEnabled = true,
                     WaitlistCapacity = 15,
                     AutoApprove = true,
                     IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1633356122544-f134324a6cee",
+                    ImageUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0",
                     CreatedById = organizerUser.Id
                 },
                 new Event
                 {
+                    Title = "Winter Sports Challenge",
+                    Description = "Indoor sports tournament - basketball and volleyball",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = sportsCategory.Id,
+                    StartDateTime = new DateTime(2026, 2, 21, 9, 0, 0),
+                    EndDateTime = new DateTime(2026, 2, 21, 17, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 2, 18, 23, 59, 59),
+                    Location = "Sports Complex",
+                    VenueName = "Indoor Arena",
+                    MinCapacity = 40,
+                    MaxCapacity = 80,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 20,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1546519638-68e109498ffc",
+                    CreatedById = adminUser.Id
+                },
+
+                // March 2026
+                new Event
+                {
+                    Title = "International Women's Day Celebration",
+                    Description = "Celebrating women in tech and leadership",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = culturalCategory.Id,
+                    StartDateTime = new DateTime(2026, 3, 8, 15, 0, 0),
+                    EndDateTime = new DateTime(2026, 3, 8, 18, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 3, 6, 23, 59, 59),
+                    Location = "Main Office Building",
+                    VenueName = "Auditorium Hall",
+                    MinCapacity = 50,
+                    MaxCapacity = 150,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = null,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
+                    CreatedById = adminUser.Id
+                },
+                new Event
+                {
+                    Title = "React Advanced Patterns Workshop",
+                    Description = "Master advanced React patterns and best practices",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = workshopCategory.Id,
+                    StartDateTime = new DateTime(2026, 3, 15, 10, 0, 0),
+                    EndDateTime = new DateTime(2026, 3, 15, 16, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 3, 12, 23, 59, 59),
+                    Location = "Tech Campus",
+                    VenueName = "Lab Room 301",
+                    MinCapacity = 15,
+                    MaxCapacity = 35,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 10,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1633356122544-f134324a6cee",
+                    CreatedById = organizerUser.Id
+                },
+
+                // April 2026
+                new Event
+                {
                     Title = "Spring Team Building Retreat",
-                    Description = "Outdoor activities and team bonding",
+                    Description = "Outdoor team activities in beautiful spring weather",
                     EventTypeId = inPersonType.Id,
                     CategoryId = teamBuildingCategory.Id,
-                    StartDateTime = now.AddDays(60),
-                    EndDateTime = now.AddDays(60).AddHours(8),
-                    RegistrationDeadline = now.AddDays(50),
+                    StartDateTime = new DateTime(2026, 4, 10, 9, 0, 0),
+                    EndDateTime = new DateTime(2026, 4, 10, 17, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 4, 5, 23, 59, 59),
                     Location = "Mountain Resort",
                     VenueName = "Adventure Park",
                     MinCapacity = 25,
-                    MaxCapacity = 50,
+                    MaxCapacity = 60,
                     WaitlistEnabled = true,
                     WaitlistCapacity = 15,
                     AutoApprove = false,
                     IsVisible = true,
                     ImageUrl = "https://images.unsplash.com/photo-1528605105345-5344ea20e269",
-                    CreatedById = adminUser.Id
+                    CreatedById = organizerUser.Id
                 },
                 new Event
                 {
-                    Title = "Networking Happy Hour",
-                    Description = "Casual networking with drinks and snacks",
-                    EventTypeId = inPersonType.Id,
-                    CategoryId = networkingCategory.Id,
-                    StartDateTime = now.AddDays(90),
-                    EndDateTime = now.AddDays(90).AddHours(3),
-                    RegistrationDeadline = now.AddDays(87),
-                    Location = "Downtown Bar",
-                    VenueName = "Sky Lounge",
+                    Title = "Mental Health & Wellness Seminar",
+                    Description = "Learn techniques for stress management and work-life balance",
+                    EventTypeId = virtualType.Id,
+                    CategoryId = wellnessCategory.Id,
+                    StartDateTime = new DateTime(2026, 4, 22, 13, 0, 0),
+                    EndDateTime = new DateTime(2026, 4, 22, 15, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 4, 20, 23, 59, 59),
+                    Location = "Online",
+                    VenueName = "Microsoft Teams",
                     MinCapacity = 20,
                     MaxCapacity = 100,
-                    WaitlistEnabled = true,
-                    WaitlistCapacity = 25,
+                    WaitlistEnabled = false,
+                    WaitlistCapacity = null,
                     AutoApprove = true,
                     IsVisible = true,
-                    ImageUrl = "https://images.unsplash.com/photo-1514933651103-005eec06c04b",
+                    ImageUrl = "https://images.unsplash.com/photo-1506126613408-eca07ce68773",
+                    CreatedById = adminUser.Id
+                },
+
+                // May 2026
+                new Event
+                {
+                    Title = "Cloud Computing Masterclass",
+                    Description = "AWS, Azure, and GCP - comprehensive cloud training",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = trainingCategory.Id,
+                    StartDateTime = new DateTime(2026, 5, 8, 9, 0, 0),
+                    EndDateTime = new DateTime(2026, 5, 8, 17, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 5, 5, 23, 59, 59),
+                    Location = "Main Office Building",
+                    VenueName = "Training Center A",
+                    MinCapacity = 15,
+                    MaxCapacity = 40,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 10,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
+                    CreatedById = organizerUser.Id
+                },
+                new Event
+                {
+                    Title = "Company Anniversary Gala",
+                    Description = "Celebrating 10 years of innovation and success",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = socialCategory.Id,
+                    StartDateTime = new DateTime(2026, 5, 20, 18, 0, 0),
+                    EndDateTime = new DateTime(2026, 5, 20, 23, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 5, 15, 23, 59, 59),
+                    Location = "Grand Hotel Downtown",
+                    VenueName = "Crystal Ballroom",
+                    MinCapacity = 100,
+                    MaxCapacity = 250,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 50,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
+                    CreatedById = adminUser.Id
+                },
+
+                // June 2026
+                new Event
+                {
+                    Title = "Summer Networking BBQ",
+                    Description = "Casual outdoor networking with food and drinks",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = networkingCategory.Id,
+                    StartDateTime = new DateTime(2026, 6, 12, 17, 0, 0),
+                    EndDateTime = new DateTime(2026, 6, 12, 21, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 6, 10, 23, 59, 59),
+                    Location = "Company Park",
+                    VenueName = "Outdoor BBQ Area",
+                    MinCapacity = 40,
+                    MaxCapacity = 120,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 30,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
+                    CreatedById = organizerUser.Id
+                },
+                new Event
+                {
+                    Title = "AI & Machine Learning Summit",
+                    Description = "Exploring the future of AI in business",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = workshopCategory.Id,
+                    StartDateTime = new DateTime(2026, 6, 25, 9, 0, 0),
+                    EndDateTime = new DateTime(2026, 6, 25, 17, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 6, 22, 23, 59, 59),
+                    Location = "Convention Center",
+                    VenueName = "Main Hall",
+                    MinCapacity = 50,
+                    MaxCapacity = 200,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 50,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+                    CreatedById = adminUser.Id
+                },
+
+                // July 2026
+                new Event
+                {
+                    Title = "Summer Olympics Watch Party",
+                    Description = "Watch Olympic games together with snacks and drinks",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = socialCategory.Id,
+                    StartDateTime = new DateTime(2026, 7, 10, 19, 0, 0),
+                    EndDateTime = new DateTime(2026, 7, 10, 23, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 7, 8, 23, 59, 59),
+                    Location = "Main Office Building",
+                    VenueName = "Entertainment Lounge",
+                    MinCapacity = 30,
+                    MaxCapacity = 80,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 20,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1461896836934-ffe607ba8211",
+                    CreatedById = organizerUser.Id
+                },
+                new Event
+                {
+                    Title = "Yoga & Meditation Morning",
+                    Description = "Start your day with mindfulness and wellness",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = wellnessCategory.Id,
+                    StartDateTime = new DateTime(2026, 7, 18, 7, 0, 0),
+                    EndDateTime = new DateTime(2026, 7, 18, 9, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 7, 16, 23, 59, 59),
+                    Location = "Wellness Center",
+                    VenueName = "Meditation Room",
+                    MinCapacity = 10,
+                    MaxCapacity = 30,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 10,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
                     CreatedById = organizerUser.Id
                 }
             };
             context.Events.AddRange(events);
             context.SaveChanges();
 
-            var confirmedStatus = statuses.First(s => s.Name == "Confirmed");
-            var waitlistedStatus = statuses.First(s => s.Name == "Waitlisted");
-            var cancelledStatus = statuses.First(s => s.Name == "Cancelled");
-
             // ============================================
-            // Add Registrations for POPULARITY TESTING
+            // Add Speakers
             // ============================================
-            var registrations = new List<Registration>
+            var speakers = new Speaker[]
             {
-                // Event 0: Past Year-End Party (45 registrations - HIGH POPULARITY)
-                new Registration { EventId = events[0].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-70) },
-                new Registration { EventId = events[0].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-69) },
-                new Registration { EventId = events[0].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-68) },
-                new Registration { EventId = events[0].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-67) },
-                new Registration { EventId = events[0].Id, UserId = davidBrown.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-66) },
-
-                // Event 1: Past Docker Workshop (38 registrations - MEDIUM-HIGH POPULARITY)
-                new Registration { EventId = events[1].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-40) },
-                new Registration { EventId = events[1].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-39) },
-                new Registration { EventId = events[1].Id, UserId = robertGarcia.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-38) },
-                new Registration { EventId = events[1].Id, UserId = davidBrown.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-37) },
-
-                // Event 2: UPCOMING Team Lunch (52 registrations - HIGHEST POPULARITY - SHOULD BE #1 in upcoming)
-                new Registration { EventId = events[2].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-                new Registration { EventId = events[2].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-                new Registration { EventId = events[2].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-                new Registration { EventId = events[2].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-2) },
-                new Registration { EventId = events[2].Id, UserId = davidBrown.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-2) },
-                new Registration { EventId = events[2].Id, UserId = emilyDavis.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-2) },
-                new Registration { EventId = events[2].Id, UserId = robertGarcia.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-1) },
-                new Registration { EventId = events[2].Id, UserId = lisaMartinez.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-1) },
-
-                // Event 3: UPCOMING AI Workshop (35 registrations - MEDIUM POPULARITY - should be #2)
-                new Registration { EventId = events[3].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-4) },
-                new Registration { EventId = events[3].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-4) },
-                new Registration { EventId = events[3].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-                new Registration { EventId = events[3].Id, UserId = davidBrown.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-                new Registration { EventId = events[3].Id, UserId = robertGarcia.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-2) },
-
-                // Event 4: UPCOMING Friday Yoga (18 registrations - LOW POPULARITY - should be #3)
-                new Registration { EventId = events[4].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-2) },
-                new Registration { EventId = events[4].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-1) },
-                new Registration { EventId = events[4].Id, UserId = lisaMartinez.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-1) },
-
-                // Event 5: Town Hall (65 registrations - HIGH POPULARITY)
-                new Registration { EventId = events[5].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-5) },
-                new Registration { EventId = events[5].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-5) },
-                new Registration { EventId = events[5].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-4) },
-                new Registration { EventId = events[5].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-4) },
-                new Registration { EventId = events[5].Id, UserId = davidBrown.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-                new Registration { EventId = events[5].Id, UserId = emilyDavis.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-                new Registration { EventId = events[5].Id, UserId = robertGarcia.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-2) },
-                new Registration { EventId = events[5].Id, UserId = lisaMartinez.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-2) },
-
-                // Event 6: Winter Sports (42 registrations - MEDIUM-HIGH POPULARITY)
-                new Registration { EventId = events[6].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-6) },
-                new Registration { EventId = events[6].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-5) },
-                new Registration { EventId = events[6].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-5) },
-                new Registration { EventId = events[6].Id, UserId = robertGarcia.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-4) },
-                new Registration { EventId = events[6].Id, UserId = emilyDavis.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-3) },
-
-                // Event 7: Leadership Training (28 registrations - MEDIUM POPULARITY)
-                new Registration { EventId = events[7].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-10) },
-                new Registration { EventId = events[7].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-9) },
-                new Registration { EventId = events[7].Id, UserId = lisaMartinez.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-8) },
-                new Registration { EventId = events[7].Id, UserId = davidBrown.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-7) },
-
-                // Event 8: React Workshop (22 registrations - LOW-MEDIUM POPULARITY)
-                new Registration { EventId = events[8].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-15) },
-                new Registration { EventId = events[8].Id, UserId = sarahJohnson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-14) },
-                new Registration { EventId = events[8].Id, UserId = robertGarcia.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-13) },
-
-                // Event 9: Spring Retreat (15 registrations - LOW POPULARITY)
-                new Registration { EventId = events[9].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-20) },
-                new Registration { EventId = events[9].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-19) },
-
-                // Event 10: Networking Happy Hour (8 registrations - VERY LOW POPULARITY)
-                new Registration { EventId = events[10].Id, UserId = davidBrown.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-25) },
-                new Registration { EventId = events[10].Id, UserId = emilyDavis.Id, StatusId = confirmedStatus.Id, RegisteredAt = now.AddDays(-24) },
-
-                // Add some cancelled registrations for testing
-                new Registration { EventId = events[2].Id, UserId = adminUser.Id, StatusId = cancelledStatus.Id, RegisteredAt = now.AddDays(-3), CancelledAt = now.AddDays(-1) },
-                new Registration { EventId = events[3].Id, UserId = organizerUser.Id, StatusId = cancelledStatus.Id, RegisteredAt = now.AddDays(-4), CancelledAt = now.AddDays(-2) }
+                // Python Workshop
+                new Speaker
+                {
+                    EventId = events[1].Id,
+                    Name = "Dr. Sarah Chen",
+                    Role = "Python Expert & Data Scientist",
+                    PhotoUrl = "https://i.pravatar.cc/150?img=1"
+                },
+                
+                // React Workshop
+                new Speaker
+                {
+                    EventId = events[5].Id,
+                    Name = "Alex Johnson",
+                    Role = "Senior React Developer",
+                    PhotoUrl = "https://i.pravatar.cc/150?img=12"
+                },
+                new Speaker
+                {
+                    EventId = events[5].Id,
+                    Name = "Maria Rodriguez",
+                    Role = "Frontend Architect",
+                    PhotoUrl = "https://i.pravatar.cc/150?img=5"
+                },
+                
+                // Cloud Computing
+                new Speaker
+                {
+                    EventId = events[8].Id,
+                    Name = "David Kim",
+                    Role = "Cloud Solutions Architect",
+                    PhotoUrl = "https://i.pravatar.cc/150?img=13"
+                },
+                
+                // AI Summit
+                new Speaker
+                {
+                    EventId = events[11].Id,
+                    Name = "Dr. Emily Watson",
+                    Role = "AI Research Lead",
+                    PhotoUrl = "https://i.pravatar.cc/150?img=9"
+                },
+                new Speaker
+                {
+                    EventId = events[11].Id,
+                    Name = "Michael Zhang",
+                    Role = "ML Engineer",
+                    PhotoUrl = "https://i.pravatar.cc/150?img=14"
+                },
+                
+                // Wellness Seminar
+                new Speaker
+                {
+                    EventId = events[7].Id,
+                    Name = "Lisa Thompson",
+                    Role = "Wellness Coach",
+                    PhotoUrl = "https://i.pravatar.cc/150?img=10"
+                }
             };
+            context.Speakers.AddRange(speakers);
+            context.SaveChanges();
 
-            context.Registrations.AddRange(registrations);
+            // ============================================
+            // Add Agenda Items
+            // ============================================
+            var agendaItems = new AgendaItem[]
+            {
+                // Python Workshop
+                new AgendaItem { EventId = events[1].Id, Time = "14:00-14:30", Title = "Introduction to Python", Description = "Basics and setup" },
+                new AgendaItem { EventId = events[1].Id, Time = "14:30-15:30", Title = "Python Fundamentals", Description = "Variables, loops, functions" },
+                new AgendaItem { EventId = events[1].Id, Time = "15:30-16:30", Title = "Hands-on Coding", Description = "Build your first Python program" },
+                new AgendaItem { EventId = events[1].Id, Time = "16:30-17:00", Title = "Q&A Session", Description = "Ask your questions" },
+                
+                // React Workshop
+                new AgendaItem { EventId = events[5].Id, Time = "10:00-11:00", Title = "Advanced Hooks", Description = "useCallback, useMemo, custom hooks" },
+                new AgendaItem { EventId = events[5].Id, Time = "11:00-12:30", Title = "State Management", Description = "Context API and Redux patterns" },
+                new AgendaItem { EventId = events[5].Id, Time = "12:30-13:30", Title = "Lunch Break", Description = null },
+                new AgendaItem { EventId = events[5].Id, Time = "13:30-15:00", Title = "Performance Optimization", Description = "React.memo, lazy loading" },
+                new AgendaItem { EventId = events[5].Id, Time = "15:00-16:00", Title = "Best Practices", Description = "Code organization and patterns" },
+                
+                // Team Building
+                new AgendaItem { EventId = events[6].Id, Time = "09:00-09:30", Title = "Welcome & Icebreakers", Description = "Get to know each other" },
+                new AgendaItem { EventId = events[6].Id, Time = "09:30-12:00", Title = "Team Challenges", Description = "Problem-solving activities" },
+                new AgendaItem { EventId = events[6].Id, Time = "12:00-13:00", Title = "Lunch", Description = "BBQ lunch provided" },
+                new AgendaItem { EventId = events[6].Id, Time = "13:00-16:00", Title = "Outdoor Activities", Description = "Sports and games" },
+                new AgendaItem { EventId = events[6].Id, Time = "16:00-17:00", Title = "Wrap-up", Description = "Team reflections" },
+                
+                // Cloud Computing
+                new AgendaItem { EventId = events[8].Id, Time = "09:00-10:30", Title = "AWS Fundamentals", Description = "EC2, S3, Lambda" },
+                new AgendaItem { EventId = events[8].Id, Time = "10:30-12:00", Title = "Azure Overview", Description = "VMs, Storage, Functions" },
+                new AgendaItem { EventId = events[8].Id, Time = "12:00-13:00", Title = "Lunch Break", Description = null },
+                new AgendaItem { EventId = events[8].Id, Time = "13:00-14:30", Title = "GCP Essentials", Description = "Compute Engine, Cloud Storage" },
+                new AgendaItem { EventId = events[8].Id, Time = "14:30-16:00", Title = "Multi-Cloud Strategy", Description = "Best practices" },
+                new AgendaItem { EventId = events[8].Id, Time = "16:00-17:00", Title = "Hands-on Lab", Description = "Deploy a real application" },
+                
+                // AI Summit
+                new AgendaItem { EventId = events[11].Id, Time = "09:00-10:00", Title = "Keynote: Future of AI", Description = "Industry trends and predictions" },
+                new AgendaItem { EventId = events[11].Id, Time = "10:00-12:00", Title = "ML in Business", Description = "Real-world case studies" },
+                new AgendaItem { EventId = events[11].Id, Time = "12:00-13:00", Title = "Networking Lunch", Description = null },
+                new AgendaItem { EventId = events[11].Id, Time = "13:00-15:00", Title = "Workshop: Building ML Models", Description = "Hands-on training" },
+                new AgendaItem { EventId = events[11].Id, Time = "15:00-17:00", Title = "Panel Discussion", Description = "Ethics in AI" }
+            };
+            context.AgendaItems.AddRange(agendaItems);
             context.SaveChanges();
 
             // ============================================
@@ -533,51 +576,98 @@ namespace Pied_Piper.Data
             // ============================================
             var eventTags = new List<EventTag>
             {
-                // Team Lunch tags
+                // New Year Kickoff
+                new EventTag { EventId = events[0].Id, TagId = tags.First(t => t.Name == "indoor").Id },
+                new EventTag { EventId = events[0].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
+                
+                // Python Workshop
+                new EventTag { EventId = events[1].Id, TagId = tags.First(t => t.Name == "learning").Id },
+                new EventTag { EventId = events[1].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
+                
+                // Valentine's Lunch
                 new EventTag { EventId = events[2].Id, TagId = tags.First(t => t.Name == "indoor").Id },
                 new EventTag { EventId = events[2].Id, TagId = tags.First(t => t.Name == "free-food").Id },
                 new EventTag { EventId = events[2].Id, TagId = tags.First(t => t.Name == "networking").Id },
                 
-                // AI Workshop tags
-                new EventTag { EventId = events[3].Id, TagId = tags.First(t => t.Name == "learning").Id },
-                new EventTag { EventId = events[3].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
+                // Winter Sports
+                new EventTag { EventId = events[3].Id, TagId = tags.First(t => t.Name == "indoor").Id },
+                new EventTag { EventId = events[3].Id, TagId = tags.First(t => t.Name == "wellness").Id },
                 
-                // Yoga tags
-                new EventTag { EventId = events[4].Id, TagId = tags.First(t => t.Name == "wellness").Id },
+                // Women's Day
                 new EventTag { EventId = events[4].Id, TagId = tags.First(t => t.Name == "indoor").Id },
+                new EventTag { EventId = events[4].Id, TagId = tags.First(t => t.Name == "networking").Id },
+                new EventTag { EventId = events[4].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
                 
-                // Sports tags
-                new EventTag { EventId = events[6].Id, TagId = tags.First(t => t.Name == "wellness").Id },
-                new EventTag { EventId = events[6].Id, TagId = tags.First(t => t.Name == "indoor").Id },
-                
-                // Retreat tags
-                new EventTag { EventId = events[9].Id, TagId = tags.First(t => t.Name == "indoor").Id },
-                new EventTag { EventId = events[5].Id, TagId = tags.First(t => t.Name == "networking").Id },
+                // React Workshop
+                new EventTag { EventId = events[5].Id, TagId = tags.First(t => t.Name == "learning").Id },
                 new EventTag { EventId = events[5].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
                 
-                // Sports tags
-                new EventTag { EventId = events[6].Id, TagId = tags.First(t => t.Name == "wellness").Id },
-                new EventTag { EventId = events[6].Id, TagId = tags.First(t => t.Name == "indoor").Id },
+                // Team Building
+                new EventTag { EventId = events[6].Id, TagId = tags.First(t => t.Name == "outdoor").Id },
+                new EventTag { EventId = events[6].Id, TagId = tags.First(t => t.Name == "free-food").Id },
+                new EventTag { EventId = events[6].Id, TagId = tags.First(t => t.Name == "family-friendly").Id },
                 
-                // Leadership tags
-                new EventTag { EventId = events[7].Id, TagId = tags.First(t => t.Name == "learning").Id },
+                // Wellness Seminar
+                new EventTag { EventId = events[7].Id, TagId = tags.First(t => t.Name == "wellness").Id },
                 new EventTag { EventId = events[7].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
                 
-                // React Workshop tags
+                // Cloud Computing
                 new EventTag { EventId = events[8].Id, TagId = tags.First(t => t.Name == "learning").Id },
                 new EventTag { EventId = events[8].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
                 
-                // Retreat tags
-                new EventTag { EventId = events[9].Id, TagId = tags.First(t => t.Name == "outdoor").Id },
+                // Anniversary Gala
+                new EventTag { EventId = events[9].Id, TagId = tags.First(t => t.Name == "indoor").Id },
                 new EventTag { EventId = events[9].Id, TagId = tags.First(t => t.Name == "free-food").Id },
-                new EventTag { EventId = events[9].Id, TagId = tags.First(t => t.Name == "family-friendly").Id },
+                new EventTag { EventId = events[9].Id, TagId = tags.First(t => t.Name == "networking").Id },
                 
-                // Networking Happy Hour tags
-                new EventTag { EventId = events[10].Id, TagId = tags.First(t => t.Name == "indoor").Id },
+                // Summer BBQ
+                new EventTag { EventId = events[10].Id, TagId = tags.First(t => t.Name == "outdoor").Id },
                 new EventTag { EventId = events[10].Id, TagId = tags.First(t => t.Name == "free-food").Id },
-                new EventTag { EventId = events[10].Id, TagId = tags.First(t => t.Name == "networking").Id }
+                new EventTag { EventId = events[10].Id, TagId = tags.First(t => t.Name == "networking").Id },
+                
+                // AI Summit
+                new EventTag { EventId = events[11].Id, TagId = tags.First(t => t.Name == "learning").Id },
+                new EventTag { EventId = events[11].Id, TagId = tags.First(t => t.Name == "networking").Id },
+                new EventTag { EventId = events[11].Id, TagId = tags.First(t => t.Name == "remote-friendly").Id },
+                
+                // Olympics Watch Party
+                new EventTag { EventId = events[12].Id, TagId = tags.First(t => t.Name == "indoor").Id },
+                new EventTag { EventId = events[12].Id, TagId = tags.First(t => t.Name == "free-food").Id },
+                
+                // Yoga Morning
+                new EventTag { EventId = events[13].Id, TagId = tags.First(t => t.Name == "wellness").Id },
+                new EventTag { EventId = events[13].Id, TagId = tags.First(t => t.Name == "indoor").Id }
             };
             context.EventTags.AddRange(eventTags);
+            context.SaveChanges();
+
+            // ============================================
+            // Add Sample Registrations
+            // ============================================
+            var confirmedStatus = statuses.First(s => s.Name == "Confirmed");
+            var waitlistedStatus = statuses.First(s => s.Name == "Waitlisted");
+
+            var registrations = new Registration[]
+            {
+                // Some confirmed registrations
+                new Registration { EventId = events[0].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-5) },
+                new Registration { EventId = events[0].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-4) },
+                new Registration { EventId = events[0].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-3) },
+
+                new Registration { EventId = events[1].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-2) },
+                new Registration { EventId = events[1].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-1) },
+
+                new Registration { EventId = events[2].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-3) },
+                new Registration { EventId = events[2].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-2) },
+                new Registration { EventId = events[2].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-1) },
+
+                new Registration { EventId = events[5].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-6) },
+                new Registration { EventId = events[5].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-5) },
+                
+                // Some waitlisted
+                new Registration { EventId = events[11].Id, UserId = johnDoe.Id, StatusId = waitlistedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-1) }
+            };
+            context.Registrations.AddRange(registrations);
             context.SaveChanges();
         }
     }

@@ -151,6 +151,9 @@ namespace Pied_Piper.Data
                     .IsRequired()
                     .HasMaxLength(500);
 
+                entity.Property(u => u.IsAdmin)
+                    .HasDefaultValue(false); // NEW
+
                 entity.Property(u => u.IsActive)
                     .HasDefaultValue(true);
 

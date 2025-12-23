@@ -5,6 +5,7 @@ using Pied_Piper.Data;
 using Pied_Piper.DTOs;
 using Pied_Piper.DTOs.User;
 using Pied_Piper.Models;
+using Pied_Piper.Repositories;
 using Pied_Piper.Services;
 using System.Security.Claims;
 
@@ -15,20 +16,22 @@ namespace Pied_Piper.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly IJwtService _jwtService;
         private readonly IConfiguration _configuration;
 
         public AuthController(
             ApplicationDbContext context,
+            IUserRepository userRepository,
             IJwtService jwtService,
             IConfiguration configuration)
         {
             _context = context;
+            _userRepository = userRepository;
             _jwtService = jwtService;
             _configuration = configuration;
         }
 
-        // POST: api/auth/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -36,8 +39,7 @@ namespace Pied_Piper.Controllers
                 return BadRequest(ModelState);
 
             // Check if email already exists
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == request.Email);
+            var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
             if (existingUser != null)
                 return BadRequest(new { message = "Email is already registered" });
@@ -59,36 +61,21 @@ namespace Pied_Piper.Controllers
             // Hash password
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            // Create new user
+            // Create new user with concatenated full name
             var user = new User
             {
                 Email = request.Email,
-                FullName = request.FullName,
+                FullName = $"{request.FirstName} {request.LastName}",
                 Password = passwordHash,
                 DepartmentId = defaultDepartment.Id,
+                IsAdmin = false,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.CreateAsync(user);
 
-            // Load department for token generation
-            await _context.Entry(user).Reference(u => u.Department).LoadAsync();
-
-            // Generate JWT token
-            var token = _jwtService.GenerateToken(user, user.Department.Name);
-            var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationMinutes"] ?? "1440");
-
-            return Ok(new LoginResponse
-            {
-                Token = token,
-                UserId = user.Id,
-                Email = user.Email,
-                FullName = user.FullName,
-                Department = user.Department.Name,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)
-            });
+            return NoContent();
         }
 
         // POST: api/auth/login
@@ -126,6 +113,7 @@ namespace Pied_Piper.Controllers
                 Email = user.Email,
                 FullName = user.FullName,
                 Department = user.Department.Name,
+                IsAdmin = user.IsAdmin,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)
             });
         }
@@ -135,15 +123,12 @@ namespace Pied_Piper.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            // Get user ID from JWT claims
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 return Unauthorized(new { message = "Invalid token" });
 
-            var user = await _context.Users
-                .Include(u => u.Department)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _userRepository.GetByIdAsync(userId);
 
             if (user == null)
                 return NotFound(new { message = "User not found" });
@@ -154,9 +139,53 @@ namespace Pied_Piper.Controllers
                 Email = user.Email,
                 FullName = user.FullName,
                 Department = user.Department.Name,
+                IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt
             });
+        }
+
+        // POST: api/auth/refresh
+        [Authorize]
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                return Unauthorized(new { message = "Invalid token" });
+
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null || !user.IsActive)
+                return Unauthorized(new { message = "User not found or inactive" });
+
+            // Generate new token
+            var token = _jwtService.GenerateToken(user, user.Department.Name);
+            var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationMinutes"] ?? "1440");
+
+            return Ok(new LoginResponse
+            {
+                Token = token,
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                Department = user.Department.Name,
+                IsAdmin = user.IsAdmin,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)
+            });
+        }
+
+        // POST: api/auth/check-otp
+        [HttpPost("check-otp")]
+        public IActionResult CheckOtp([FromBody] CheckOtpRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            bool isValid = request.Otp == "111111";
+
+            return Ok(isValid);
         }
     }
 }

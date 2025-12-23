@@ -12,7 +12,7 @@ using Pied_Piper.Data;
 namespace Pied_Piper.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251223180401_InitialCreate")]
+    [Migration("20251223214648_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -415,6 +415,11 @@ namespace Pied_Piper.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<bool>("IsAdmin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Password")
                         .IsRequired()

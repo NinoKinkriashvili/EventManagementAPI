@@ -1,13 +1,15 @@
 ﻿namespace Pied_Piper.DTOs
 {
-    public class UserProfileDto
+    public class UserDetailsDto
     {
         public int Id { get; set; }
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
-        public string Department { get; set; } = string.Empty;
-        public bool IsAdmin { get; set; } // NEW
+        public string DepartmentName { get; set; } = string.Empty;
+        public bool IsAdmin { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int TotalRegistrations { get; set; }
+        public int TotalEventsCreated { get; set; }
     }
 }

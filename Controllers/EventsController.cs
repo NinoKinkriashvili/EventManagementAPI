@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Pied_Piper.Repositories;
-using Pied_Piper.DTOs;
-using Pied_Piper.Models;
 using Pied_Piper.DTOs.Event;
+using Pied_Piper.Repositories;
 
 namespace Pied_Piper.Controllers
 {
@@ -17,7 +15,7 @@ namespace Pied_Piper.Controllers
             _eventRepository = eventRepository;
         }
 
-
+        // GET: api/events
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -68,12 +66,13 @@ namespace Pied_Piper.Controllers
             return Ok(result);
         }
 
+        // GET: api/events/sorted-by-popularity?n=5
         [HttpGet("sorted-by-popularity")]
-        public async Task<IActionResult> GetAllSortedByPopularity()
+        public async Task<IActionResult> GetAllSortedByPopularity([FromQuery] int? amount)
         {
             var events = await _eventRepository.GetAllAsync();
 
-            var result = events
+            var query = events
                 .Where(e => e.EndDateTime > DateTime.Now)
                 .Select(e => new EventDetailsDto
                 {
@@ -116,18 +115,21 @@ namespace Pied_Piper.Controllers
                         Description = a.Description
                     }).ToList()
                 })
-                .OrderByDescending(e => e.ConfirmedCount) // Sort by most registrations first
-                .ToList();
+                .OrderByDescending(e => e.ConfirmedCount);
+
+            // If n is provided, take only top N events
+            var result = amount.HasValue ? query.Take(amount.Value).ToList() : query.ToList();
 
             return Ok(result);
         }
 
+        // GET: api/events/sorted-by-upcoming-date?n=10
         [HttpGet("sorted-by-upcoming-date")]
-        public async Task<IActionResult> GetAllSortedByUpcomingDate()
+        public async Task<IActionResult> GetAllSortedByUpcomingDate([FromQuery] int? amount)
         {
             var events = await _eventRepository.GetAllAsync();
 
-            var result = events
+            var query = events
                 .Where(e => e.EndDateTime > DateTime.Now)
                 .Select(e => new EventDetailsDto
                 {
@@ -170,12 +172,15 @@ namespace Pied_Piper.Controllers
                         Description = a.Description
                     }).ToList()
                 })
-                .OrderBy(e => e.StartDateTime) // Sort by earliest date first
-                .ToList();
+                .OrderBy(e => e.StartDateTime);
+
+            // If n is provided, take only top N events
+            var result = amount.HasValue ? query.Take(amount.Value).ToList() : query.ToList();
 
             return Ok(result);
         }
 
+        // GET: api/events/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -197,7 +202,7 @@ namespace Pied_Piper.Controllers
                 RegistrationDeadline = ev.RegistrationDeadline,
                 Location = ev.Location,
                 VenueName = ev.VenueName,
-                CurrentCapacity = ev.Registrations.Count(r => r.Status.Name == "Confirmed"), // CALCULATED
+                CurrentCapacity = ev.Registrations.Count(r => r.Status.Name == "Confirmed"),
                 MinCapacity = ev.MinCapacity,
                 MaxCapacity = ev.MaxCapacity,
                 WaitlistEnabled = ev.WaitlistEnabled,
@@ -207,7 +212,7 @@ namespace Pied_Piper.Controllers
                 IsVisible = ev.IsVisible,
                 ConfirmedCount = ev.Registrations.Count(r => r.Status.Name == "Confirmed"),
                 WaitlistedCount = ev.Registrations.Count(r => r.Status.Name == "Waitlisted"),
-                IsFull = ev.Registrations.Count(r => r.Status.Name == "Confirmed") >= ev.MaxCapacity, // Use MaxCapacity
+                IsFull = ev.Registrations.Count(r => r.Status.Name == "Confirmed") >= ev.MaxCapacity,
                 Tags = ev.EventTags.Select(et => et.Tag.Name).ToList(),
                 CreatedByName = ev.CreatedBy.FullName,
                 Speakers = ev.Speakers.Select(s => new SpeakerDto
@@ -229,143 +234,7 @@ namespace Pied_Piper.Controllers
             return Ok(dto);
         }
 
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateEventRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // Validation
-            if (request.StartDateTime >= request.EndDateTime)
-                return BadRequest("StartDateTime must be before EndDateTime");
-
-            if (request.MinCapacity > request.MaxCapacity)
-                return BadRequest("MinCapacity cannot be greater than MaxCapacity");
-
-            var ev = new Event
-            {
-                Title = request.Title,
-                Description = request.Description,
-                EventTypeId = request.EventTypeId,
-                CategoryId = request.CategoryId,
-                StartDateTime = request.StartDateTime,
-                EndDateTime = request.EndDateTime,
-                RegistrationDeadline = request.RegistrationDeadline,
-                Location = request.Location,
-                VenueName = request.VenueName,
-                // REMOVED: Capacity = request.Capacity,
-                MinCapacity = request.MinCapacity,
-                MaxCapacity = request.MaxCapacity,
-                WaitlistEnabled = request.WaitlistEnabled,
-                WaitlistCapacity = request.WaitlistCapacity,
-                AutoApprove = request.AutoApprove,
-                ImageUrl = request.ImageUrl,
-                IsVisible = request.IsVisible,
-                CreatedById = 1  // TODO: Get from authentication
-            };
-
-            var created = await _eventRepository.CreateAsync(ev);
-
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-
-        [HttpDelete("many")]
-        public async Task<IActionResult> DeleteMany([FromBody] List<int> eventIds)
-        {
-            if (eventIds == null || !eventIds.Any())
-                return BadRequest("No event IDs provided");
-
-            var notFoundIds = new List<int>();
-            var deletedIds = new List<int>();
-
-            foreach (var id in eventIds)
-            {
-                var ev = await _eventRepository.GetByIdAsync(id);
-                if (ev == null)
-                {
-                    notFoundIds.Add(id);
-                    continue;
-                }
-
-                await _eventRepository.DeleteAsync(id);
-                deletedIds.Add(id);
-            }
-
-            if (notFoundIds.Any())
-            {
-                return Ok(new
-                {
-                    message = $"Deleted {deletedIds.Count} events. {notFoundIds.Count} events not found.",
-                    deletedIds,
-                    notFoundIds
-                });
-            }
-
-            return Ok(new
-            {
-                message = $"Successfully deleted {deletedIds.Count} events",
-                deletedIds
-            });
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateEventRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var ev = await _eventRepository.GetByIdWithDetailsAsync(id);
-            if (ev == null)
-                return NotFound();
-
-            // Validation
-            if (request.StartDateTime >= request.EndDateTime)
-                return BadRequest("StartDateTime must be before EndDateTime");
-
-            if (request.MinCapacity > request.MaxCapacity)
-                return BadRequest("MinCapacity cannot be greater than MaxCapacity");
-
-            // Check if new MaxCapacity is less than current confirmed registrations
-            var confirmedCount = ev.Registrations.Count(r => r.Status.Name == "Confirmed");
-            if (request.MaxCapacity < confirmedCount)
-                return BadRequest($"MaxCapacity cannot be less than confirmed registrations ({confirmedCount})");
-
-            // Update properties
-            ev.Title = request.Title;
-            ev.Description = request.Description;
-            ev.EventTypeId = request.EventTypeId;
-            ev.CategoryId = request.CategoryId;
-            ev.StartDateTime = request.StartDateTime;
-            ev.EndDateTime = request.EndDateTime;
-            ev.RegistrationDeadline = request.RegistrationDeadline;
-            ev.Location = request.Location;
-            ev.VenueName = request.VenueName;
-            // REMOVED: ev.Capacity = request.Capacity;
-            ev.MinCapacity = request.MinCapacity;
-            ev.MaxCapacity = request.MaxCapacity;
-            ev.WaitlistEnabled = request.WaitlistEnabled;
-            ev.WaitlistCapacity = request.WaitlistCapacity;
-            ev.AutoApprove = request.AutoApprove;
-            ev.ImageUrl = request.ImageUrl;
-
-            await _eventRepository.UpdateAsync(ev);
-
-            return NoContent();
-        }
-        
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var ev = await _eventRepository.GetByIdAsync(id);
-            if (ev == null)
-                return NotFound();
-
-            await _eventRepository.DeleteAsync(id);
-
-            return NoContent();
-        }
-
+        // GET: api/events/types
         [HttpGet("types")]
         public async Task<IActionResult> GetEventTypes()
         {
@@ -381,6 +250,7 @@ namespace Pied_Piper.Controllers
             return Ok(result);
         }
 
+        // GET: api/events/categories
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories()
         {
@@ -395,6 +265,7 @@ namespace Pied_Piper.Controllers
             return Ok(result);
         }
 
+        // GET: api/events/categories/search
         [HttpGet("categories/search")]
         public async Task<IActionResult> GetCategoryByTitle([FromQuery] string title)
         {
@@ -413,6 +284,7 @@ namespace Pied_Piper.Controllers
             });
         }
 
+        // GET: api/events/types/search
         [HttpGet("types/search")]
         public async Task<IActionResult> GetEventTypeByName([FromQuery] string name)
         {
@@ -430,72 +302,6 @@ namespace Pied_Piper.Controllers
                 Name = eventType.Name,
                 Description = eventType.Description
             });
-        }
-
-        [HttpPatch("{id}/visibility")]
-        public async Task<IActionResult> UpdateVisibility(int id, [FromBody] UpdateVisibilityRequest request)
-        {
-            var ev = await _eventRepository.GetByIdAsync(id);
-
-            if (ev == null)
-                return NotFound($"Event with ID {id} not found");
-
-            ev.IsVisible = request.IsVisible;
-            ev.UpdatedAt = DateTime.UtcNow;
-
-            await _eventRepository.UpdateAsync(ev);
-
-            return Ok(new { message = $"Event visibility updated to {request.IsVisible}", isVisible = ev.IsVisible });
-        }
-
-        [HttpGet("all-including-hidden")]
-        public async Task<IActionResult> GetAllIncludingHidden()
-        {
-            var events = await _eventRepository.GetAllIncludingHiddenAsync();
-
-            var result = events.Select(e => new EventDetailsDto
-            {
-                Id = e.Id,
-                Title = e.Title,
-                Description = e.Description,
-                EventTypeName = e.EventType.Name,
-                CategoryId = e.CategoryId,
-                CategoryTitle = e.Category.Title,
-                StartDateTime = e.StartDateTime,
-                EndDateTime = e.EndDateTime,
-                RegistrationDeadline = e.RegistrationDeadline,
-                Location = e.Location,
-                VenueName = e.VenueName,
-                CurrentCapacity = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                MinCapacity = e.MinCapacity,
-                MaxCapacity = e.MaxCapacity,
-                WaitlistEnabled = e.WaitlistEnabled,
-                WaitlistCapacity = e.WaitlistCapacity,
-                AutoApprove = e.AutoApprove,
-                ImageUrl = e.ImageUrl,
-                IsVisible = e.IsVisible,
-                ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
-                IsFull = e.Registrations.Count(r => r.Status.Name == "Confirmed") >= e.MaxCapacity,
-                Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
-                CreatedByName = e.CreatedBy.FullName,
-                Speakers = e.Speakers.Select(s => new SpeakerDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Role = s.Role,
-                    PhotoUrl = s.PhotoUrl
-                }).ToList(),
-                Agenda = e.AgendaItems.Select(a => new AgendaItemDto
-                {
-                    Id = a.Id,
-                    Time = a.Time,
-                    Title = a.Title,
-                    Description = a.Description
-                }).ToList()
-            });
-
-            return Ok(result);
         }
     }
 }
