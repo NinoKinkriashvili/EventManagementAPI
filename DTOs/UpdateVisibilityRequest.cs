@@ -1,6 +1,6 @@
 ﻿namespace Pied_Piper.DTOs
 {
-    public class ToggleVisibilityRequest
+    public class UpdateVisibilityRequest
     {
         public bool IsVisible { get; set; }
     }
