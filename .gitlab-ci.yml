@@ -47,32 +47,7 @@ docker_backend:
   rules:
     - if: '$CI_COMMIT_BRANCH'
 
-# ---------------- STAGING (Optional) ----------------
-deploy_staging:
-  stage: deploy
-  image: alpine
-  environment:
-    name: staging
-  before_script:
-    - apk add --no-cache openssh
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-  script:
-    - ssh $SSH_USER@$SSH_HOST "
-        docker pull $DOCKER_IMAGE:latest &&
-        docker stop backend-staging || true &&
-        docker rm backend-staging || true &&
-        docker run -d \
-          --name backend-staging \
-          --network app-network \
-          -e ASPNETCORE_ENVIRONMENT=Staging \
-          -p 5001:8080 \
-          $DOCKER_IMAGE:latest
-      "
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+    
 
 # ---------------- PRODUCTION ----------------
 deploy_production:
@@ -83,9 +58,10 @@ deploy_production:
   before_script:
     - apk add --no-cache openssh
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
   script:
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "
         docker pull $DOCKER_IMAGE:latest &&
