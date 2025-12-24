@@ -38,13 +38,23 @@ docker_backend:
     DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
   script:
-    # Docker image შექმნა და push-ი DockerHub-ზე
-    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
-    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
-    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE:latest
-    - docker push $DOCKER_IMAGE:latest
-  rules:
+  - |
+    if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
+      TAG="${CI_COMMIT_SHORT_SHA}-staging"
+    elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+      TAG="${CI_COMMIT_SHORT_SHA}-production"
+    else
+      echo "No env tag for this branch"
+      exit 0
+    fi
+
+    echo "Using tag: $TAG"
+    docker build -t $DOCKER_IMAGE:$TAG .
+    docker push $DOCKER_IMAGE:$TAG
+    
+    rules:
     - if: '$CI_COMMIT_BRANCH'
 
     
