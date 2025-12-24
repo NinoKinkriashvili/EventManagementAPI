@@ -19,17 +19,20 @@ namespace Pied_Piper.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IJwtService _jwtService;
         private readonly IConfiguration _configuration;
+        private readonly INotificationService _notificationService;
 
         public AuthController(
             ApplicationDbContext context,
             IUserRepository userRepository,
             IJwtService jwtService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            INotificationService notificationService)
         {
             _context = context;
             _userRepository = userRepository;
             _jwtService = jwtService;
             _configuration = configuration;
+            _notificationService = notificationService;
         }
 
         // POST: api/auth/register
@@ -70,6 +73,8 @@ namespace Pied_Piper.Controllers
             };
 
             await _userRepository.CreateAsync(user);
+
+            await _notificationService.CreateWelcomeNotificationAsync(user.Id);
 
             return NoContent();
         }

@@ -48,6 +48,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // SERVICES
 // ============================================
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // ============================================
 // JWT AUTHENTICATION
