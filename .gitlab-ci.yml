@@ -92,7 +92,7 @@ deploy_backend:
 
       elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
        
-        ssh $SSH_USER@$SSH_HOST"
+      ssh $SSH_USER@$SSH_HOST"
         cd /opt/myapp &&
         export BACKEND_TAG=$TAG &&
         docker compose pull backend &&
