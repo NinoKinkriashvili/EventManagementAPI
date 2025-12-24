@@ -90,10 +90,12 @@ deploy_backend:
 
     - echo "$VM_HOST"
 
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST  "cd /opt/myapp"
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST   "export BACKEND_TAG=$TAG"
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST  "docker compose pull backend"
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST  "docker compose up -d backend"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "
+        cd /opt/myapp &&
+        export BACKEND_TAG=$TAG &&
+        docker compose pull backend &&
+        docker compose up -d backend
+      "
   tags:
     - docker    
 
