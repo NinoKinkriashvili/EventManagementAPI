@@ -63,18 +63,10 @@ deploy_production:
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
   script:
-    - |
-      ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "
-      docker pull $DOCKER_IMAGE:latest &&
-      docker stop backend-prod || true &&
-      docker rm backend-prod || true &&
-      docker run -d \
-        --name backend-prod \
-        --network app-network \
-        -e ASPNETCORE_ENVIRONMENT=Production \
-        -p 5000:8080 \
-        $DOCKER_IMAGE:latest
-      "
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker pull $DOCKER_IMAGE:latest"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker stop backend-prod || true"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker rm backend-prod || true"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker run -d --name backend-prod --network app-network -e ASPNETCORE_ENVIRONMENT=Production -p 5000:8080 $DOCKER_IMAGE:latest"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
