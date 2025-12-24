@@ -68,6 +68,7 @@ docker_backend:
 # ---------------- PRODUCTION ----------------
 deploy_backend:
   stage: deploy
+  image: alpine
   before_script:
     - apk add --no-cache openssh
     - mkdir -p ~/.ssh
