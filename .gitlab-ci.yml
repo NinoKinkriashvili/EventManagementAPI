@@ -80,7 +80,7 @@ deploy_backend:
     - echo "Deploying tag:$TAG"
     - |
       if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
-        VM_HOST=staging.example.com
+        VM_HOST=$SSH_HOST
       elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
         VM_HOST=$SSH_HOST
       else
