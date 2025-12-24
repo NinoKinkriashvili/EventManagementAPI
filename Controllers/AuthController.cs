@@ -42,13 +42,11 @@ namespace Pied_Piper.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Check if email already exists
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
             if (existingUser != null)
                 return BadRequest(new { message = "Email is already registered" });
 
-            // Validate department exists
             var department = await _context.Departments.FindAsync(request.DepartmentId);
             if (department == null)
                 return BadRequest(new { message = "Invalid department selected" });
@@ -56,17 +54,15 @@ namespace Pied_Piper.Controllers
             if (!department.IsActive)
                 return BadRequest(new { message = "Selected department is not active" });
 
-            // Hash password
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            // Create new user with concatenated full name
             var user = new User
             {
                 Email = request.Email,
                 FullName = $"{request.FirstName} {request.LastName}",
                 Password = passwordHash,
-                PhoneNumber = request.PhoneNumber, // NEW
-                DepartmentId = request.DepartmentId, // NEW - Use selected department
+                PhoneNumber = request.PhoneNumber, 
+                DepartmentId = request.DepartmentId,
                 IsAdmin = false,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
@@ -86,7 +82,6 @@ namespace Pied_Piper.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Find user by email
             var user = await _context.Users
                 .Include(u => u.Department)
                 .FirstOrDefaultAsync(u => u.Email == request.Email);
@@ -94,11 +89,9 @@ namespace Pied_Piper.Controllers
             if (user == null)
                 return Unauthorized(new { message = "Invalid email or password" });
 
-            // Check if user is active
             if (!user.IsActive)
                 return Unauthorized(new { message = "Account is deactivated" });
 
-            // Verify password
             var isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
             if (!isPasswordValid)
                 return Unauthorized(new { message = "Invalid email or password" });
@@ -113,7 +106,7 @@ namespace Pied_Piper.Controllers
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber, // NEW
+                PhoneNumber = user.PhoneNumber,
                 Department = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)
@@ -140,7 +133,7 @@ namespace Pied_Piper.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber, // NEW
+                PhoneNumber = user.PhoneNumber,
                 Department = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive,
@@ -173,7 +166,7 @@ namespace Pied_Piper.Controllers
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber, // NEW
+                PhoneNumber = user.PhoneNumber,
                 Department = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)

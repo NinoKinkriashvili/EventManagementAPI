@@ -27,7 +27,7 @@ namespace Pied_Piper.Controllers
                 Id = u.Id,
                 Email = u.Email,
                 FullName = u.FullName,
-                PhoneNumber = u.PhoneNumber, // NEW
+                PhoneNumber = u.PhoneNumber,
                 DepartmentName = u.Department.Name,
                 IsAdmin = u.IsAdmin,
                 IsActive = u.IsActive,
@@ -51,7 +51,7 @@ namespace Pied_Piper.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber, // NEW
+                PhoneNumber = user.PhoneNumber,
                 DepartmentName = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive,
@@ -77,7 +77,7 @@ namespace Pied_Piper.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber, // NEW
+                PhoneNumber = user.PhoneNumber,
                 DepartmentName = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive,

@@ -95,7 +95,6 @@ builder.Services.AddCors(options =>
                 "http://localhost:4200",      // Angular dev
                 "http://localhost:3000",      // React dev
                 "http://localhost:8100"       // Mobile dev
-                                              // TODO: Add production domain when deployed
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -187,22 +186,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// HTTPS Redirection
 app.UseHttpsRedirection();
 
-// CORS - Must be before Authentication and Authorization
 app.UseCors("AllowFrontend");
 
-// Authentication - Must come BEFORE Authorization
 app.UseAuthentication();
 
-// Authorization
 app.UseAuthorization();
 
-// Map Controllers
 app.MapControllers();
 
-// ============================================
-// RUN APPLICATION
-// ============================================
 app.Run();

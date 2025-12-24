@@ -12,7 +12,6 @@ namespace Pied_Piper.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")] 
-    // [Authorize] // Uncomment when you want to protect all admin endpoints
     public class AdminController : ControllerBase
     {
         private readonly IEventRepository _eventRepository;
@@ -46,7 +45,7 @@ namespace Pied_Piper.Controllers
                     RegistrationDeadline = e.RegistrationDeadline,
                     Location = e.Location,
                     VenueName = e.VenueName,
-                    CurrentCapacity = confirmedCount, // NEW
+                    CurrentCapacity = confirmedCount,
                     MaxCapacity = e.MaxCapacity,
                     AvailableSlots = e.MaxCapacity - confirmedCount,
                     EventStatus = GetEventStatus(e),
@@ -124,7 +123,7 @@ namespace Pied_Piper.Controllers
                 AutoApprove = request.AutoApprove,
                 ImageUrl = request.ImageUrl,
                 IsVisible = request.IsVisible,
-                CreatedById = 1  // TODO: Get from authentication
+                CreatedById = 1
             };
 
             var created = await _eventRepository.CreateAsync(ev);
@@ -187,12 +186,10 @@ namespace Pied_Piper.Controllers
             if (request.MinCapacity > request.MaxCapacity)
                 return BadRequest("MinCapacity cannot be greater than MaxCapacity");
 
-            // Check if new MaxCapacity is less than current confirmed registrations
             var confirmedCount = ev.Registrations.Count(r => r.Status.Name == "Confirmed");
             if (request.MaxCapacity < confirmedCount)
                 return BadRequest($"MaxCapacity cannot be less than confirmed registrations ({confirmedCount})");
 
-            // Update properties
             ev.Title = request.Title;
             ev.Description = request.Description;
             ev.EventTypeId = request.EventTypeId;
@@ -338,12 +335,12 @@ namespace Pied_Piper.Controllers
                     .ThenInclude(u => u.Department)
                 .Include(r => r.Status)
                 .Where(r => r.EventId == eventId && r.Status.Name == "Waitlisted")
-                .OrderBy(r => r.RegisteredAt)  // First in line comes first
+                .OrderBy(r => r.RegisteredAt)
                 .ToListAsync();
 
             var result = waitlistedRegistrations.Select((r, index) => new
             {
-                position = index + 1,  // Position in waitlist
+                position = index + 1,
                 registrationId = r.Id,
                 userId = r.UserId,
                 userName = r.User.FullName,

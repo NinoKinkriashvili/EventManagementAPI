@@ -102,7 +102,7 @@ namespace Pied_Piper.Controllers
 
             var created = await _registrationRepository.CreateAsync(registration);
 
-            // CREATE NOTIFICATION
+            // Create notification
             await _notificationService.CreateRegistrationNotificationAsync(
                 userId,
                 created.EventId,
@@ -156,7 +156,7 @@ namespace Pied_Piper.Controllers
             if (registration.Status.Name == "Cancelled")
                 return BadRequest(new { message = "Registration is already cancelled" });
 
-            // Store the current status before cancellation (for notification and auto-promote logic)
+            // Store the current status before cancellation
             var wasConfirmed = registration.Status.Name == "Confirmed";
 
             // Get cancelled status
@@ -170,7 +170,7 @@ namespace Pied_Piper.Controllers
             registration.StatusId = cancelledStatus.Id;
             await _registrationRepository.UpdateAsync(registration);
 
-            // CREATE NOTIFICATION
+            // Create Notification
             await _notificationService.CreateUnregistrationNotificationAsync(
                 userId,
                 eventId,
@@ -197,7 +197,7 @@ namespace Pied_Piper.Controllers
                         firstWaitlisted.StatusId = confirmedStatus.Id;
                         await _registrationRepository.UpdateAsync(firstWaitlisted);
 
-                        // CREATE NOTIFICATION FOR PROMOTED USER
+                        // Create Notification for promoted user
                         await _notificationService.CreateEventUpdateNotificationAsync(
                             firstWaitlisted.UserId,
                             eventId,
@@ -247,7 +247,7 @@ namespace Pied_Piper.Controllers
             var registrations = await _registrationRepository.GetByEventIdAsync(eventId);
 
             var result = registrations
-                .Where(r => r.Status.Name != "Cancelled") // Don't show cancelled
+                .Where(r => r.Status.Name != "Cancelled")
                 .Select(r => new RegistrationDto
                 {
                     Id = r.Id,
