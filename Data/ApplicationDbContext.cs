@@ -151,8 +151,11 @@ namespace Pied_Piper.Data
                     .IsRequired()
                     .HasMaxLength(500);
 
+                entity.Property(u => u.PhoneNumber)
+                    .HasMaxLength(20); // NEW - Optional phone number
+
                 entity.Property(u => u.IsAdmin)
-                    .HasDefaultValue(false); // NEW
+                    .HasDefaultValue(false);
 
                 entity.Property(u => u.IsActive)
                     .HasDefaultValue(true);

@@ -54,8 +54,8 @@ namespace Pied_Piper.Controllers
                 return BadRequest(new { message = "Registration deadline has passed" });
 
             // Check if event has already started
-            if (DateTime.UtcNow > ev.StartDateTime)
-                return BadRequest(new { message = "Event has already started" });
+            if (DateTime.UtcNow > ev.EndDateTime)
+                return BadRequest(new { message = "Event has already ended" });
 
             // Check if user is already registered
             var existingRegistration = await _registrationRepository.GetByUserAndEventAsync(userId, request.EventId);

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Pied_Piper.DTOs;
 using Pied_Piper.DTOs.Event;
+using Pied_Piper.Models;
 using Pied_Piper.Repositories;
 
 namespace Pied_Piper.Controllers
@@ -15,13 +17,35 @@ namespace Pied_Piper.Controllers
             _eventRepository = eventRepository;
         }
 
-        // GET: api/events
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        // Helper methods
+        private static string GetEventStatus(Event e)
         {
-            var events = await _eventRepository.GetAllAsync();
+            var confirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed");
 
-            var result = events.Select(e => new EventDetailsDto
+            if (confirmedCount >= e.MaxCapacity)
+            {
+                if (e.WaitlistEnabled)
+                {
+                    return "Waitlisted";
+                }
+                return "Full";
+            }
+
+            return "Available";
+        }
+
+        private static int GetAvailableSlots(Event e)
+        {
+            var confirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed");
+            var available = e.MaxCapacity - confirmedCount;
+            return available > 0 ? available : 0;
+        }
+
+        private static EventDetailsDto MapToDto(Event e)
+        {
+            var confirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed");
+
+            return new EventDetailsDto
             {
                 Id = e.Id,
                 Title = e.Title,
@@ -34,17 +58,13 @@ namespace Pied_Piper.Controllers
                 RegistrationDeadline = e.RegistrationDeadline,
                 Location = e.Location,
                 VenueName = e.VenueName,
-                CurrentCapacity = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                MinCapacity = e.MinCapacity,
+                CurrentCapacity = confirmedCount, // NEW - Current registrations
                 MaxCapacity = e.MaxCapacity,
-                WaitlistEnabled = e.WaitlistEnabled,
-                WaitlistCapacity = e.WaitlistCapacity,
+                AvailableSlots = GetAvailableSlots(e),
+                EventStatus = GetEventStatus(e),
                 AutoApprove = e.AutoApprove,
                 ImageUrl = e.ImageUrl,
                 IsVisible = e.IsVisible,
-                ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
-                IsFull = e.Registrations.Count(r => r.Status.Name == "Confirmed") >= e.MaxCapacity,
                 Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
                 CreatedByName = e.CreatedBy.FullName,
                 Speakers = e.Speakers.Select(s => new SpeakerDto
@@ -61,121 +81,51 @@ namespace Pied_Piper.Controllers
                     Title = a.Title,
                     Description = a.Description
                 }).ToList()
-            });
+            };
+        }
 
+        // GET: api/events
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var events = await _eventRepository.GetAllAsync();
+            var result = events.Select(e => MapToDto(e));
             return Ok(result);
         }
 
         // GET: api/events/sorted-by-popularity?n=5
         [HttpGet("sorted-by-popularity")]
-        public async Task<IActionResult> GetAllSortedByPopularity([FromQuery] int? amount)
+        public async Task<IActionResult> GetAllSortedByPopularity([FromQuery] int? n)
         {
             var events = await _eventRepository.GetAllAsync();
 
             var query = events
                 .Where(e => e.EndDateTime > DateTime.Now)
-                .Select(e => new EventDetailsDto
+                .Select(e => new
                 {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    EventTypeName = e.EventType.Name,
-                    CategoryId = e.CategoryId,
-                    CategoryTitle = e.Category.Title,
-                    StartDateTime = e.StartDateTime,
-                    EndDateTime = e.EndDateTime,
-                    RegistrationDeadline = e.RegistrationDeadline,
-                    Location = e.Location,
-                    VenueName = e.VenueName,
-                    CurrentCapacity = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                    MinCapacity = e.MinCapacity,
-                    MaxCapacity = e.MaxCapacity,
-                    WaitlistEnabled = e.WaitlistEnabled,
-                    WaitlistCapacity = e.WaitlistCapacity,
-                    AutoApprove = e.AutoApprove,
-                    ImageUrl = e.ImageUrl,
-                    IsVisible = e.IsVisible,
-                    ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                    WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
-                    IsFull = e.Registrations.Count(r => r.Status.Name == "Confirmed") >= e.MaxCapacity,
-                    Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
-                    CreatedByName = e.CreatedBy.FullName,
-                    Speakers = e.Speakers.Select(s => new SpeakerDto
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        Role = s.Role,
-                        PhotoUrl = s.PhotoUrl
-                    }).ToList(),
-                    Agenda = e.AgendaItems.Select(a => new AgendaItemDto
-                    {
-                        Id = a.Id,
-                        Time = a.Time,
-                        Title = a.Title,
-                        Description = a.Description
-                    }).ToList()
+                    Event = e,
+                    ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed")
                 })
-                .OrderByDescending(e => e.ConfirmedCount);
+                .OrderByDescending(x => x.ConfirmedCount)
+                .Select(x => MapToDto(x.Event));
 
-            // If n is provided, take only top N events
-            var result = amount.HasValue ? query.Take(amount.Value).ToList() : query.ToList();
+            var result = n.HasValue ? query.Take(n.Value).ToList() : query.ToList();
 
             return Ok(result);
         }
 
         // GET: api/events/sorted-by-upcoming-date?n=10
         [HttpGet("sorted-by-upcoming-date")]
-        public async Task<IActionResult> GetAllSortedByUpcomingDate([FromQuery] int? amount)
+        public async Task<IActionResult> GetAllSortedByUpcomingDate([FromQuery] int? n)
         {
             var events = await _eventRepository.GetAllAsync();
 
             var query = events
                 .Where(e => e.EndDateTime > DateTime.Now)
-                .Select(e => new EventDetailsDto
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    EventTypeName = e.EventType.Name,
-                    CategoryId = e.CategoryId,
-                    CategoryTitle = e.Category.Title,
-                    StartDateTime = e.StartDateTime,
-                    EndDateTime = e.EndDateTime,
-                    RegistrationDeadline = e.RegistrationDeadline,
-                    Location = e.Location,
-                    VenueName = e.VenueName,
-                    CurrentCapacity = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                    MinCapacity = e.MinCapacity,
-                    MaxCapacity = e.MaxCapacity,
-                    WaitlistEnabled = e.WaitlistEnabled,
-                    WaitlistCapacity = e.WaitlistCapacity,
-                    AutoApprove = e.AutoApprove,
-                    ImageUrl = e.ImageUrl,
-                    IsVisible = e.IsVisible,
-                    ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                    WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
-                    IsFull = e.Registrations.Count(r => r.Status.Name == "Confirmed") >= e.MaxCapacity,
-                    Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
-                    CreatedByName = e.CreatedBy.FullName,
-                    Speakers = e.Speakers.Select(s => new SpeakerDto
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        Role = s.Role,
-                        PhotoUrl = s.PhotoUrl
-                    }).ToList(),
-                    Agenda = e.AgendaItems.Select(a => new AgendaItemDto
-                    {
-                        Id = a.Id,
-                        Time = a.Time,
-                        Title = a.Title,
-                        Description = a.Description
-                    }).ToList()
-                })
-                .OrderBy(e => e.StartDateTime);
+                .OrderBy(e => e.StartDateTime)
+                .Select(e => MapToDto(e));
 
-            // If n is provided, take only top N events
-            var result = amount.HasValue ? query.Take(amount.Value).ToList() : query.ToList();
+            var result = n.HasValue ? query.Take(n.Value).ToList() : query.ToList();
 
             return Ok(result);
         }
@@ -189,47 +139,7 @@ namespace Pied_Piper.Controllers
             if (ev == null)
                 return NotFound();
 
-            var dto = new EventDetailsDto
-            {
-                Id = ev.Id,
-                Title = ev.Title,
-                Description = ev.Description,
-                EventTypeName = ev.EventType.Name,
-                CategoryId = ev.CategoryId,
-                CategoryTitle = ev.Category.Title,
-                StartDateTime = ev.StartDateTime,
-                EndDateTime = ev.EndDateTime,
-                RegistrationDeadline = ev.RegistrationDeadline,
-                Location = ev.Location,
-                VenueName = ev.VenueName,
-                CurrentCapacity = ev.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                MinCapacity = ev.MinCapacity,
-                MaxCapacity = ev.MaxCapacity,
-                WaitlistEnabled = ev.WaitlistEnabled,
-                WaitlistCapacity = ev.WaitlistCapacity,
-                AutoApprove = ev.AutoApprove,
-                ImageUrl = ev.ImageUrl,
-                IsVisible = ev.IsVisible,
-                ConfirmedCount = ev.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                WaitlistedCount = ev.Registrations.Count(r => r.Status.Name == "Waitlisted"),
-                IsFull = ev.Registrations.Count(r => r.Status.Name == "Confirmed") >= ev.MaxCapacity,
-                Tags = ev.EventTags.Select(et => et.Tag.Name).ToList(),
-                CreatedByName = ev.CreatedBy.FullName,
-                Speakers = ev.Speakers.Select(s => new SpeakerDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Role = s.Role,
-                    PhotoUrl = s.PhotoUrl
-                }).ToList(),
-                Agenda = ev.AgendaItems.Select(a => new AgendaItemDto
-                {
-                    Id = a.Id,
-                    Time = a.Time,
-                    Title = a.Title,
-                    Description = a.Description
-                }).ToList()
-            };
+            var dto = MapToDto(ev);
 
             return Ok(dto);
         }

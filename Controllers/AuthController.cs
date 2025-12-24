@@ -32,6 +32,7 @@ namespace Pied_Piper.Controllers
             _configuration = configuration;
         }
 
+        // POST: api/auth/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -44,19 +45,13 @@ namespace Pied_Piper.Controllers
             if (existingUser != null)
                 return BadRequest(new { message = "Email is already registered" });
 
-            // Get default department (e.g., "General" or first department)
-            var defaultDepartment = await _context.Departments
-                .FirstOrDefaultAsync(d => d.Name == "General" && d.IsActive);
+            // Validate department exists
+            var department = await _context.Departments.FindAsync(request.DepartmentId);
+            if (department == null)
+                return BadRequest(new { message = "Invalid department selected" });
 
-            if (defaultDepartment == null)
-            {
-                // If no "General" department, get any active department
-                defaultDepartment = await _context.Departments
-                    .FirstOrDefaultAsync(d => d.IsActive);
-            }
-
-            if (defaultDepartment == null)
-                return StatusCode(500, new { message = "No active departments found in database" });
+            if (!department.IsActive)
+                return BadRequest(new { message = "Selected department is not active" });
 
             // Hash password
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -67,7 +62,8 @@ namespace Pied_Piper.Controllers
                 Email = request.Email,
                 FullName = $"{request.FirstName} {request.LastName}",
                 Password = passwordHash,
-                DepartmentId = defaultDepartment.Id,
+                PhoneNumber = request.PhoneNumber, // NEW
+                DepartmentId = request.DepartmentId, // NEW - Use selected department
                 IsAdmin = false,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
@@ -112,6 +108,7 @@ namespace Pied_Piper.Controllers
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber, // NEW
                 Department = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)
@@ -138,6 +135,7 @@ namespace Pied_Piper.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber, // NEW
                 Department = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive,
@@ -170,10 +168,29 @@ namespace Pied_Piper.Controllers
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber, // NEW
                 Department = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)
             });
+        }
+
+        // GET: api/auth/departments
+        [HttpGet("departments")]
+        public async Task<IActionResult> GetDepartments()
+        {
+            var departments = await _context.Departments
+                .Where(d => d.IsActive)
+                .OrderBy(d => d.Name)
+                .Select(d => new
+                {
+                    id = d.Id,
+                    name = d.Name,
+                    description = d.Description
+                })
+                .ToListAsync();
+
+            return Ok(departments);
         }
 
         // POST: api/auth/check-otp

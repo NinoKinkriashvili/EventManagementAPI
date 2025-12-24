@@ -12,7 +12,7 @@ using Pied_Piper.Data;
 namespace Pied_Piper.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251223214648_InitialCreate")]
+    [Migration("20251224092956_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -425,6 +425,10 @@ namespace Pied_Piper.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
