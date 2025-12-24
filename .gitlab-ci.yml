@@ -68,7 +68,7 @@ deploy_production:
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker rm backend-prod || true"
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker run -d --name backend-prod --network app-network -e ASPNETCORE_ENVIRONMENT=Production -p 5000:8080 $DOCKER_IMAGE:latest"
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH'
 
 
 
