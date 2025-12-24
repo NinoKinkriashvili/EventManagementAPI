@@ -53,6 +53,12 @@ docker_backend:
     echo "Using tag: $TAG"
     docker build -t $DOCKER_IMAGE:$TAG .
     docker push $DOCKER_IMAGE:$TAG
+    echo "TAG=$TAG" >> backend_tag.env
+
+
+  artifacts:
+    reports:
+      dotenv: backend_tag.env
     
   rules:
   - if: '$CI_COMMIT_BRANCH'
@@ -62,7 +68,6 @@ docker_backend:
 # ---------------- PRODUCTION ----------------
 deploy_production:
   stage: deploy
-  image: alpine
   environment:
     name: production
   before_script:
@@ -73,12 +78,34 @@ deploy_production:
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
   script:
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker network inspect app-network >/dev/null 2>&1 || docker network create app-network"
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker pull $DOCKER_IMAGE:latest"
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker stop backend-prod || true"
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker rm backend-prod || true"
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker run -d --name backend-prod
-     --network app-network -e ASPNETCORE_ENVIRONMENT=Production -p 5282:3000 $DOCKER_IMAGE:latest"
+deploy_backend:
+  stage: deploy
+  dependencies:
+    - docker_backend  # Get the artifact from build stage
+  script:
+    - echo "Deploying tag: $TAG"
+
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
+        VM_HOST=staging.example.com
+        cd /opt/myapp &&
+        export BACKEND_TAG=$TAG &&
+        docker compose pull backend &&
+        docker compose up -d backend
+
+      elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+       
+        - ssh $SSH_USER@$SSH_HOST"
+        cd /opt/myapp &&
+        export BACKEND_TAG=$TAG &&
+        docker compose pull backend &&
+        docker compose up -d backend
+      "
+      else
+        echo "No deploy for this branch"
+        exit 0
+      fi
+
   rules:
     - if: '$CI_COMMIT_BRANCH'
 
