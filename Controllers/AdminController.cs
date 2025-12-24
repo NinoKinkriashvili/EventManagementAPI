@@ -323,13 +323,23 @@ namespace Pied_Piper.Controllers
         }
 
         // GET: api/admin/events/{eventId}/waitlist
-        [HttpGet("events/{eventId}/waitlist")]
-        public async Task<IActionResult> GetEventWaitlist(int eventId)
+        [HttpGet("events/{eventId}/users")]
+        public async Task<IActionResult> GetEventUsers(int eventId)
         {
             var ev = await _eventRepository.GetByIdAsync(eventId);
             if (ev == null)
                 return NotFound(new { message = "Event not found" });
 
+            // Get confirmed registrations
+            var confirmedRegistrations = await _context.Registrations
+                .Include(r => r.User)
+                    .ThenInclude(u => u.Department)
+                .Include(r => r.Status)
+                .Where(r => r.EventId == eventId && r.Status.Name == "Confirmed")
+                .OrderBy(r => r.RegisteredAt)
+                .ToListAsync();
+
+            // Get waitlisted registrations
             var waitlistedRegistrations = await _context.Registrations
                 .Include(r => r.User)
                     .ThenInclude(u => u.Department)
@@ -338,7 +348,7 @@ namespace Pied_Piper.Controllers
                 .OrderBy(r => r.RegisteredAt)
                 .ToListAsync();
 
-            var result = waitlistedRegistrations.Select((r, index) => new
+            var confirmedResult = confirmedRegistrations.Select((r, index) => new
             {
                 position = index + 1,
                 registrationId = r.Id,
@@ -346,6 +356,19 @@ namespace Pied_Piper.Controllers
                 userName = r.User.FullName,
                 userEmail = r.User.Email,
                 department = r.User.Department.Name,
+                status = "Confirmed",
+                registeredAt = r.RegisteredAt
+            });
+
+            var waitlistedResult = waitlistedRegistrations.Select((r, index) => new
+            {
+                position = index + 1,
+                registrationId = r.Id,
+                userId = r.UserId,
+                userName = r.User.FullName,
+                userEmail = r.User.Email,
+                department = r.User.Department.Name,
+                status = "Waitlisted",
                 registeredAt = r.RegisteredAt
             });
 
@@ -353,9 +376,13 @@ namespace Pied_Piper.Controllers
             {
                 eventId = eventId,
                 eventTitle = ev.Title,
+                maxCapacity = ev.MaxCapacity,
+                totalConfirmed = confirmedRegistrations.Count,
                 totalWaitlisted = waitlistedRegistrations.Count,
                 waitlistCapacity = ev.WaitlistCapacity,
-                waitlist = result
+                availableSlots = Math.Max(0, ev.MaxCapacity - confirmedRegistrations.Count),
+                confirmed = confirmedResult,
+                waitlist = waitlistedResult
             });
         }
     }
