@@ -68,44 +68,35 @@ docker_backend:
 # ---------------- PRODUCTION ----------------
 deploy_backend:
   stage: deploy
-  environment:
-    name: production
+  image: alpine
   before_script:
     - apk add --no-cache openssh
     - mkdir -p ~/.ssh
-    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-  dependencies:
-    - docker_backend  # Get the artifact from build stage
   script:
     - echo "Deploying tag: $TAG"
-
     - |
       if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
         VM_HOST=staging.example.com
-        cd /opt/myapp &&
-        export BACKEND_TAG=$TAG &&
-        docker compose pull backend &&
-        docker compose up -d backend
-
       elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
-       
-      ssh $SSH_USER@$SSH_HOST"
-        cd /opt/myapp &&
-        export BACKEND_TAG=$TAG &&
-        docker compose pull backend &&
-        docker compose up -d backend
-      "
+        VM_HOST=prod.example.com
       else
         echo "No deploy for this branch"
         exit 0
       fi
 
+      ssh $SSH_USER@$VM_HOST "
+        cd /opt/myapp &&
+        export BACKEND_TAG=$TAG &&
+        docker compose pull backend &&
+        docker compose up -d backend
+      "
+
   rules:
     - if: '$CI_COMMIT_BRANCH'
-
 
 
 
