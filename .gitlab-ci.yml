@@ -1,5 +1,4 @@
 stages:
-  - restore
   - build
   - docker
   - deploy
@@ -11,23 +10,23 @@ default:
   tags:
     - docker
 
-# ---------------- RESTORE ----------------
-restore_backend:
-  stage: restore
-  image: mcr.microsoft.com/dotnet/sdk:8.0
-  script:
-    - dotnet restore EventManagementAPI.csproj
-  rules:
-    - if: '$CI_COMMIT_BRANCH'
-
-# ---------------- BUILD ----------------
+# ---------------- BUILD (Restore + Build ერთ job-ში) ----------------
 build_backend:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:8.0
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .nuget/packages/
+      - obj/
+      - bin/
   script:
-    - dotnet build EventManagementAPI.csproj -c Release --no-restore
+    # Restore + Build ერთად
+    - dotnet restore EventManagementAPI.csproj
+    - dotnet build EventManagementAPI.csproj -c Release
   rules:
     - if: '$CI_COMMIT_BRANCH'
+
 
 # ---------------- DOCKER ----------------
 docker_backend:
