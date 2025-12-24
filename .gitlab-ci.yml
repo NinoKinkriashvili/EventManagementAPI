@@ -94,10 +94,14 @@ deploy_backend:
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST   "export BACKEND_TAG=$TAG"
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST  "docker compose pull backend"
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST  "docker compose up -d backend"
-      
+  tags:
+    - docker    
 
   rules:
     - if: '$CI_COMMIT_BRANCH'
+
+  
+
 
 
 
