@@ -1,7 +1,6 @@
-﻿using Pied_Piper.DTOs.Event;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Pied_Piper.DTOs
+namespace Pied_Piper.DTOs.Event
 {
     public class UpdateEventRequest
     {
