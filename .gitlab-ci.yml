@@ -68,7 +68,6 @@ docker_backend:
 # ---------------- PRODUCTION ----------------
 deploy_backend:
   stage: deploy
-  image: alpine
   before_script:
     - apk add --no-cache openssh
     - mkdir -p ~/.ssh
@@ -77,7 +76,7 @@ deploy_backend:
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
   script:
-    - echo "Deploying tag: $TAG"
+    - echo "Deploying tag:$TAG"
     - |
       if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
         VM_HOST=staging.example.com
