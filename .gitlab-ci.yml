@@ -88,12 +88,13 @@ deploy_backend:
         exit 0
       fi
 
-       ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST "
-        cd /opt/myapp &&
-        export BACKEND_TAG=$TAG &&
-        docker compose pull backend &&
-        docker compose up -d backend
-      "
+    - echo "$VM_HOST"
+
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST  "cd /opt/myapp"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST   "export BACKEND_TAG=$TAG"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST  "docker compose pull backend"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$VM_HOST  "docker compose up -d backend"
+      
 
   rules:
     - if: '$CI_COMMIT_BRANCH'
