@@ -63,6 +63,7 @@ deploy_production:
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
   script:
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker network inspect app-network >/dev/null 2>&1 || docker network create app-network"
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker pull $DOCKER_IMAGE:latest"
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker stop backend-prod || true"
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker rm backend-prod || true"
