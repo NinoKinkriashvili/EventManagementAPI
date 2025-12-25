@@ -94,7 +94,7 @@ deploy_backend:
         cd /opt/myapp &&
         export BACKEND_TAG=$TAG &&
         docker compose pull backend &&
-        docker compose up -d backend
+        docker compose up -d backend mssql
       "
   tags:
     - docker    
