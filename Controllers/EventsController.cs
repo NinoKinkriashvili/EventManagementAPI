@@ -171,7 +171,8 @@ namespace Pied_Piper.Controllers
             var result = categories.Select(c => new CategoryDto
             {
                 Id = c.Id,
-                Title = c.Title
+                Title = c.Title,
+                TotalEvents = c.Events.Count(e => e.IsActive)
             });
 
             return Ok(result);

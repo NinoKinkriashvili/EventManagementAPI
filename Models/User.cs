@@ -9,7 +9,6 @@
         public string? PhoneNumber { get; set; }
         public int DepartmentId { get; set; }
         public bool IsAdmin { get; set; } = false;
-
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
