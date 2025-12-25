@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pied_Piper.Data;
-using Pied_Piper.Repositories;
 using Pied_Piper.DTOs;
 using Pied_Piper.Models;
+using Pied_Piper.Repositories;
+using Pied_Piper.Services;
 using System.Security.Claims;
 
 namespace Pied_Piper.Controllers
@@ -16,16 +17,19 @@ namespace Pied_Piper.Controllers
     {
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IEventRepository _eventRepository;
+        private readonly INotificationService _notificationService;
         private readonly ApplicationDbContext _context;
 
         public RegistrationController(
             IRegistrationRepository registrationRepository,
             IEventRepository eventRepository,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            INotificationService notificationService)
         {
             _registrationRepository = registrationRepository;
             _eventRepository = eventRepository;
             _context = context;
+            _notificationService = notificationService;
         }
 
         // POST: api/registration/register
@@ -98,6 +102,13 @@ namespace Pied_Piper.Controllers
 
             var created = await _registrationRepository.CreateAsync(registration);
 
+            // Create notification
+            await _notificationService.CreateRegistrationNotificationAsync(
+                userId,
+                created.EventId,
+                created.Event.Title,
+                statusName);
+
             return Ok(new
             {
                 message = statusName == "Confirmed"
@@ -145,6 +156,9 @@ namespace Pied_Piper.Controllers
             if (registration.Status.Name == "Cancelled")
                 return BadRequest(new { message = "Registration is already cancelled" });
 
+            // Store the current status before cancellation
+            var wasConfirmed = registration.Status.Name == "Confirmed";
+
             // Get cancelled status
             var cancelledStatus = await _context.RegistrationStatuses
                 .FirstOrDefaultAsync(s => s.Name == "Cancelled");
@@ -156,12 +170,19 @@ namespace Pied_Piper.Controllers
             registration.StatusId = cancelledStatus.Id;
             await _registrationRepository.UpdateAsync(registration);
 
-            // If auto-approve is enabled and this was a confirmed registration, 
+            // Create Notification
+            await _notificationService.CreateUnregistrationNotificationAsync(
+                userId,
+                eventId,
+                ev.Title);
+
+            // If auto-approve is enabled and this was a confirmed registration,
             // promote first waitlisted person
-            if (ev.AutoApprove && registration.Status.Name == "Confirmed")
+            if (ev.AutoApprove && wasConfirmed)
             {
                 var firstWaitlisted = await _context.Registrations
                     .Include(r => r.Status)
+                    .Include(r => r.User)
                     .Where(r => r.EventId == eventId && r.Status.Name == "Waitlisted")
                     .OrderBy(r => r.RegisteredAt)
                     .FirstOrDefaultAsync();
@@ -175,6 +196,13 @@ namespace Pied_Piper.Controllers
                     {
                         firstWaitlisted.StatusId = confirmedStatus.Id;
                         await _registrationRepository.UpdateAsync(firstWaitlisted);
+
+                        // Create Notification for promoted user
+                        await _notificationService.CreateEventUpdateNotificationAsync(
+                            firstWaitlisted.UserId,
+                            eventId,
+                            ev.Title,
+                            "Great news! A spot has opened up and you've been moved from the waitlist to confirmed status.");
                     }
                 }
             }
@@ -219,7 +247,7 @@ namespace Pied_Piper.Controllers
             var registrations = await _registrationRepository.GetByEventIdAsync(eventId);
 
             var result = registrations
-                .Where(r => r.Status.Name != "Cancelled") // Don't show cancelled
+                .Where(r => r.Status.Name != "Cancelled")
                 .Select(r => new RegistrationDto
                 {
                     Id = r.Id,

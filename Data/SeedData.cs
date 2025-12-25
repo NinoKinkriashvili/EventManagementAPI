@@ -100,40 +100,177 @@ namespace Pied_Piper.Data
                     Email = "admin@company.com",
                     FullName = "Admin User",
                     Password = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                    PhoneNumber = "+995555123456",
                     DepartmentId = departments.First(d => d.Name == "Engineering").Id,
-                    IsAdmin = true // Admin user
+                    IsAdmin = true
                 },
                 new User
                 {
                     Email = "organizer@company.com",
                     FullName = "Event Organizer",
                     Password = BCrypt.Net.BCrypt.HashPassword("Organizer123!"),
+                    PhoneNumber = "+995555234567",
                     DepartmentId = departments.First(d => d.Name == "HR").Id,
-                    IsAdmin = true // Also admin
+                    IsAdmin = true
                 },
                 new User
                 {
                     Email = "john.doe@company.com",
                     FullName = "John Doe",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555345678",
                     DepartmentId = departments.First(d => d.Name == "Engineering").Id,
-                    IsAdmin = false // Regular user
+                    IsAdmin = false
                 },
                 new User
                 {
                     Email = "jane.smith@company.com",
                     FullName = "Jane Smith",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555456789",
                     DepartmentId = departments.First(d => d.Name == "Marketing").Id,
-                    IsAdmin = false // Regular user
+                    IsAdmin = false
                 },
                 new User
                 {
                     Email = "mike.wilson@company.com",
                     FullName = "Mike Wilson",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555567890", 
                     DepartmentId = departments.First(d => d.Name == "Sales").Id,
-                    IsAdmin = false // Regular user
+                    IsAdmin = false
+                },
+                new User
+                {
+                    Email = "mano.tiler@company.com",
+                    FullName = "Mano Tiller",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555678901",
+                    DepartmentId = departments.First(d => d.Name == "Operations").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-1)
+                },
+                new User
+                {
+                    Email = "shako.gernava@company.com",
+                    FullName = "Shako Gernava",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555678902",
+                    DepartmentId = departments.First(d => d.Name == "Finance").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-2)
+                },
+                new User
+                {
+                    Email = "lile.janjgava@company.com",
+                    FullName = "Lile Janjgava",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555678903",
+                    DepartmentId = departments.First(d => d.Name == "HR").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(1)
+                },
+                new User
+                {
+                    Email = "nino.kiknadze@company.com",
+                    FullName = "Nino Kiknadze",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700001",
+                    DepartmentId = departments.First(d => d.Name == "Marketing").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-2)
+                },
+                new User
+                {
+                    Email = "giorgi.beridze@company.com",
+                    FullName = "Giorgi Beridze",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700002",
+                    DepartmentId = departments.First(d => d.Name == "General").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-2).AddDays(-3)
+                },
+                new User
+                {
+                    Email = "mariam.gelashvili@company.com",
+                    FullName = "Mariam Gelashvili",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700003",
+                    DepartmentId = departments.First(d => d.Name == "Marketing").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-2).AddDays(-10)
+                },
+                new User
+                {
+                    Email = "luka.tsereteli@company.com",
+                    FullName = "Luka Tsereteli",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700004",
+                    DepartmentId = departments.First(d => d.Name == "Operations").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-2).AddDays(-20)
+                },
+
+                new User
+                {
+                    Email = "ana.kapanadze@company.com",
+                    FullName = "Ana Kapanadze",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700011",
+                    DepartmentId = departments.First(d => d.Name == "HR").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-1)
+                },
+                new User
+                {
+                    Email = "dato.koberidze@company.com",
+                    FullName = "Dato Koberidze",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700012",
+                    DepartmentId = departments.First(d => d.Name == "Sales").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-1).AddDays(-7)
+                },
+                new User
+                {
+                    Email = "salome.chikvaidze@company.com",
+                    FullName = "Salome Chikvaidze",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700013",
+                    DepartmentId = departments.First(d => d.Name == "General").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(-1).AddDays(-15)
+                },
+
+                new User
+                {
+                    Email = "irakli.mchedlishvili@company.com",
+                    FullName = "Irakli Mchedlishvili",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700021",
+                    DepartmentId = departments.First(d => d.Name == "Engineering").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(1)
+                },
+                new User
+                {
+                    Email = "ketevan.japaridze@company.com",
+                    FullName = "Ketevan Japaridze",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700022",
+                    DepartmentId = departments.First(d => d.Name == "Sales").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(1).AddDays(5)
+                },
+                new User
+                {
+                    Email = "levan.kharatishvili@company.com",
+                    FullName = "Levan Kharatishvili",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                    PhoneNumber = "+995555700023",
+                    DepartmentId = departments.First(d => d.Name == "Finance").Id,
+                    IsAdmin = false,
+                    CreatedAt = DateTime.UtcNow.AddMonths(1).AddDays(12)
                 }
             };
             context.Users.AddRange(users);
@@ -144,6 +281,22 @@ namespace Pied_Piper.Data
             var johnDoe = users[2];
             var janeSmith = users[3];
             var mikeWilson = users[4];
+            var manoTiler = users[5];
+            var shakoGernava = users[6];
+            var lileJanjgava = users[7];
+            var ninoKiknadze = users[8];
+            var giorgiBeridze = users[9];
+            var mariamGelashvili = users[10];
+            var lukaTsereteli = users[11];
+
+            var anaKapanadze = users[12];
+            var datoKoberidze = users[13];
+            var salomeChikvaidze = users[14];
+
+            var irakliMchedlishvili = users[15];
+            var ketevanJaparidze = users[16];
+            var levanKharatishvili = users[17];
+
 
             // Get references for easy access
             var inPersonType = eventTypes.First(et => et.Name == "In-Person");
@@ -164,7 +317,6 @@ namespace Pied_Piper.Data
             // ============================================
             var events = new Event[]
             {
-                // January 2026
                 new Event
                 {
                     Title = "New Year Kickoff Meeting",
@@ -205,8 +357,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
                     CreatedById = organizerUser.Id
                 },
-                
-                // February 2026
                 new Event
                 {
                     Title = "Valentine's Day Team Lunch",
@@ -247,8 +397,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1546519638-68e109498ffc",
                     CreatedById = adminUser.Id
                 },
-
-                // March 2026
                 new Event
                 {
                     Title = "International Women's Day Celebration",
@@ -289,8 +437,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1633356122544-f134324a6cee",
                     CreatedById = organizerUser.Id
                 },
-
-                // April 2026
                 new Event
                 {
                     Title = "Spring Team Building Retreat",
@@ -331,8 +477,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1506126613408-eca07ce68773",
                     CreatedById = adminUser.Id
                 },
-
-                // May 2026
                 new Event
                 {
                     Title = "Cloud Computing Masterclass",
@@ -373,8 +517,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
                     CreatedById = adminUser.Id
                 },
-
-                // June 2026
                 new Event
                 {
                     Title = "Summer Networking BBQ",
@@ -415,8 +557,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1677442136019-21780ecad995",
                     CreatedById = adminUser.Id
                 },
-
-                // July 2026
                 new Event
                 {
                     Title = "Summer Olympics Watch Party",
@@ -456,7 +596,167 @@ namespace Pied_Piper.Data
                     IsVisible = true,
                     ImageUrl = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
                     CreatedById = organizerUser.Id
-                }
+                },
+                new Event
+                {
+                    Title = "Q1 2024 Strategy Offsite",
+                    Description = "Leadership and planning offsite (historical data)",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = trainingCategory.Id,
+                    StartDateTime = new DateTime(2024, 3, 15, 10, 0, 0),
+                    EndDateTime = new DateTime(2024, 3, 15, 17, 0, 0),
+                    RegistrationDeadline = new DateTime(2024, 3, 10, 23, 59, 59),
+                    Location = "Gudauri",
+                    VenueName = "Mountain Lodge",
+                    MinCapacity = 10,
+                    MaxCapacity = 40,
+                    WaitlistEnabled = false,
+                    WaitlistCapacity = null,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1528605105345-5344ea20e269",
+                    CreatedById = adminUser.Id
+                },
+                new Event
+                {
+                    Title = "Summer 2024 Company Picnic",
+                    Description = "Outdoor picnic for all departments (historical data)",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = socialCategory.Id,
+                    StartDateTime = new DateTime(2024, 7, 20, 12, 0, 0),
+                    EndDateTime = new DateTime(2024, 7, 20, 18, 0, 0),
+                    RegistrationDeadline = new DateTime(2024, 7, 15, 23, 59, 59),
+                    Location = "City Park",
+                    VenueName = "Picnic Zone A",
+                    MinCapacity = 30,
+                    MaxCapacity = 200,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 30,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
+                    CreatedById = organizerUser.Id
+                },
+                new Event
+                {
+                    Title = "January 2025 New Joiners Orientation",
+                    Description = "Onboarding and culture introduction (historical data)",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = trainingCategory.Id,
+                    StartDateTime = new DateTime(2025, 1, 10, 11, 0, 0),
+                    EndDateTime = new DateTime(2025, 1, 10, 13, 0, 0),
+                    RegistrationDeadline = new DateTime(2025, 1, 8, 23, 59, 59),
+                    Location = "Main Office / Online",
+                    VenueName = "Orientation Room",
+                    MinCapacity = 5,
+                    MaxCapacity = 60,
+                    WaitlistEnabled = false,
+                    WaitlistCapacity = null,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1540575467063-178a50c2df87",
+                    CreatedById = organizerUser.Id
+                },
+                new Event
+                {
+                    Title = "September 2025 Sales Bootcamp",
+                    Description = "Intensive sales training (historical data)",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = trainingCategory.Id,
+                    StartDateTime = new DateTime(2025, 9, 5, 9, 30, 0),
+                    EndDateTime = new DateTime(2025, 9, 5, 16, 30, 0),
+                    RegistrationDeadline = new DateTime(2025, 9, 1, 23, 59, 59),
+                    Location = "Training Hub",
+                    VenueName = "Room B",
+                    MinCapacity = 10,
+                    MaxCapacity = 50,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 10,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
+                    CreatedById = adminUser.Id
+                },
+                new Event
+                {
+                    Title = "November 2025 Tech Meetup",
+                    Description = "Internal tech talks and networking (historical data)",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = networkingCategory.Id,
+                    StartDateTime = new DateTime(2025, 11, 18, 18, 0, 0),
+                    EndDateTime = new DateTime(2025, 11, 18, 20, 30, 0),
+                    RegistrationDeadline = new DateTime(2025, 11, 16, 23, 59, 59),
+                    Location = "Main Office / Online",
+                    VenueName = "Auditorium",
+                    MinCapacity = 20,
+                    MaxCapacity = 120,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 20,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+                    CreatedById = adminUser.Id
+                },
+                new Event
+                {
+                    Title = "December 2025 Year-End Review",
+                    Description = "Wrap-up, KPIs, and next steps (near-current data)",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = socialCategory.Id,
+                    StartDateTime = new DateTime(2025, 12, 26, 16, 0, 0),
+                    EndDateTime = new DateTime(2025, 12, 26, 18, 0, 0),
+                    RegistrationDeadline = new DateTime(2025, 12, 25, 23, 59, 59),
+                    Location = "Main Office / Online",
+                    VenueName = "Grand Conference Room",
+                    MinCapacity = 30,
+                    MaxCapacity = 150,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 25,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
+                    CreatedById = organizerUser.Id
+                },
+                new Event
+                {
+                    Title = "Autumn 2026 Leadership Workshop",
+                    Description = "Leadership skills and communication training (future data)",
+                    EventTypeId = inPersonType.Id,
+                    CategoryId = workshopCategory.Id,
+                    StartDateTime = new DateTime(2026, 10, 9, 10, 0, 0),
+                    EndDateTime = new DateTime(2026, 10, 9, 17, 0, 0),
+                    RegistrationDeadline = new DateTime(2026, 10, 5, 23, 59, 59),
+                    Location = "Leadership Center",
+                    VenueName = "Hall 2",
+                    MinCapacity = 12,
+                    MaxCapacity = 45,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 10,
+                    AutoApprove = false,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
+                    CreatedById = adminUser.Id
+                },
+                new Event
+                {
+                    Title = "June 2027 Innovation Hackathon",
+                    Description = "48-hour hackathon for new product ideas (future data)",
+                    EventTypeId = hybridType.Id,
+                    CategoryId = teamBuildingCategory.Id,
+                    StartDateTime = new DateTime(2027, 6, 18, 9, 0, 0),
+                    EndDateTime = new DateTime(2027, 6, 19, 18, 0, 0),
+                    RegistrationDeadline = new DateTime(2027, 6, 10, 23, 59, 59),
+                    Location = "Tech Campus / Online",
+                    VenueName = "Innovation Lab",
+                    MinCapacity = 20,
+                    MaxCapacity = 200,
+                    WaitlistEnabled = true,
+                    WaitlistCapacity = 50,
+                    AutoApprove = true,
+                    IsVisible = true,
+                    ImageUrl = "https://images.unsplash.com/photo-1633356122544-f134324a6cee",
+                    CreatedById = organizerUser.Id
+                },
             };
             context.Events.AddRange(events);
             context.SaveChanges();
@@ -466,7 +766,6 @@ namespace Pied_Piper.Data
             // ============================================
             var speakers = new Speaker[]
             {
-                // Python Workshop
                 new Speaker
                 {
                     EventId = events[1].Id,
@@ -474,8 +773,6 @@ namespace Pied_Piper.Data
                     Role = "Python Expert & Data Scientist",
                     PhotoUrl = "https://i.pravatar.cc/150?img=1"
                 },
-                
-                // React Workshop
                 new Speaker
                 {
                     EventId = events[5].Id,
@@ -490,8 +787,6 @@ namespace Pied_Piper.Data
                     Role = "Frontend Architect",
                     PhotoUrl = "https://i.pravatar.cc/150?img=5"
                 },
-                
-                // Cloud Computing
                 new Speaker
                 {
                     EventId = events[8].Id,
@@ -499,8 +794,6 @@ namespace Pied_Piper.Data
                     Role = "Cloud Solutions Architect",
                     PhotoUrl = "https://i.pravatar.cc/150?img=13"
                 },
-                
-                // AI Summit
                 new Speaker
                 {
                     EventId = events[11].Id,
@@ -515,8 +808,6 @@ namespace Pied_Piper.Data
                     Role = "ML Engineer",
                     PhotoUrl = "https://i.pravatar.cc/150?img=14"
                 },
-                
-                // Wellness Seminar
                 new Speaker
                 {
                     EventId = events[7].Id,
@@ -533,27 +824,23 @@ namespace Pied_Piper.Data
             // ============================================
             var agendaItems = new AgendaItem[]
             {
-                // Python Workshop
                 new AgendaItem { EventId = events[1].Id, Time = "14:00-14:30", Title = "Introduction to Python", Description = "Basics and setup" },
                 new AgendaItem { EventId = events[1].Id, Time = "14:30-15:30", Title = "Python Fundamentals", Description = "Variables, loops, functions" },
                 new AgendaItem { EventId = events[1].Id, Time = "15:30-16:30", Title = "Hands-on Coding", Description = "Build your first Python program" },
                 new AgendaItem { EventId = events[1].Id, Time = "16:30-17:00", Title = "Q&A Session", Description = "Ask your questions" },
                 
-                // React Workshop
                 new AgendaItem { EventId = events[5].Id, Time = "10:00-11:00", Title = "Advanced Hooks", Description = "useCallback, useMemo, custom hooks" },
                 new AgendaItem { EventId = events[5].Id, Time = "11:00-12:30", Title = "State Management", Description = "Context API and Redux patterns" },
                 new AgendaItem { EventId = events[5].Id, Time = "12:30-13:30", Title = "Lunch Break", Description = null },
                 new AgendaItem { EventId = events[5].Id, Time = "13:30-15:00", Title = "Performance Optimization", Description = "React.memo, lazy loading" },
                 new AgendaItem { EventId = events[5].Id, Time = "15:00-16:00", Title = "Best Practices", Description = "Code organization and patterns" },
                 
-                // Team Building
                 new AgendaItem { EventId = events[6].Id, Time = "09:00-09:30", Title = "Welcome & Icebreakers", Description = "Get to know each other" },
                 new AgendaItem { EventId = events[6].Id, Time = "09:30-12:00", Title = "Team Challenges", Description = "Problem-solving activities" },
                 new AgendaItem { EventId = events[6].Id, Time = "12:00-13:00", Title = "Lunch", Description = "BBQ lunch provided" },
                 new AgendaItem { EventId = events[6].Id, Time = "13:00-16:00", Title = "Outdoor Activities", Description = "Sports and games" },
                 new AgendaItem { EventId = events[6].Id, Time = "16:00-17:00", Title = "Wrap-up", Description = "Team reflections" },
                 
-                // Cloud Computing
                 new AgendaItem { EventId = events[8].Id, Time = "09:00-10:30", Title = "AWS Fundamentals", Description = "EC2, S3, Lambda" },
                 new AgendaItem { EventId = events[8].Id, Time = "10:30-12:00", Title = "Azure Overview", Description = "VMs, Storage, Functions" },
                 new AgendaItem { EventId = events[8].Id, Time = "12:00-13:00", Title = "Lunch Break", Description = null },
@@ -561,7 +848,6 @@ namespace Pied_Piper.Data
                 new AgendaItem { EventId = events[8].Id, Time = "14:30-16:00", Title = "Multi-Cloud Strategy", Description = "Best practices" },
                 new AgendaItem { EventId = events[8].Id, Time = "16:00-17:00", Title = "Hands-on Lab", Description = "Deploy a real application" },
                 
-                // AI Summit
                 new AgendaItem { EventId = events[11].Id, Time = "09:00-10:00", Title = "Keynote: Future of AI", Description = "Industry trends and predictions" },
                 new AgendaItem { EventId = events[11].Id, Time = "10:00-12:00", Title = "ML in Business", Description = "Real-world case studies" },
                 new AgendaItem { EventId = events[11].Id, Time = "12:00-13:00", Title = "Networking Lunch", Description = null },
@@ -649,7 +935,6 @@ namespace Pied_Piper.Data
 
             var registrations = new Registration[]
             {
-                // Some confirmed registrations
                 new Registration { EventId = events[0].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-5) },
                 new Registration { EventId = events[0].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-4) },
                 new Registration { EventId = events[0].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-3) },
@@ -663,10 +948,24 @@ namespace Pied_Piper.Data
 
                 new Registration { EventId = events[5].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-6) },
                 new Registration { EventId = events[5].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-5) },
-                
-                // Some waitlisted
-                new Registration { EventId = events[11].Id, UserId = johnDoe.Id, StatusId = waitlistedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-1) }
-            };
+                new Registration { EventId = events[11].Id, UserId = johnDoe.Id, StatusId = waitlistedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-1) },
+                new Registration { EventId = events[0].Id, UserId = manoTiler.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-3) },
+                new Registration { EventId = events[1].Id, UserId = shakoGernava.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-1).AddDays(-7) },
+                new Registration { EventId = events[2].Id, UserId = lileJanjgava.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(1).AddDays(2)},
+
+                new Registration { EventId = events[0].Id, UserId = ninoKiknadze.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-2) },
+                new Registration { EventId = events[0].Id, UserId = giorgiBeridze.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-8) },
+                new Registration { EventId = events[1].Id, UserId = mariamGelashvili.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-15) },
+                new Registration { EventId = events[2].Id, UserId = lukaTsereteli.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-20) },
+
+                new Registration { EventId = events[1].Id, UserId = anaKapanadze.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-1).AddDays(-1) },
+                new Registration { EventId = events[2].Id, UserId = datoKoberidze.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-1).AddDays(-6) },
+                new Registration { EventId = events[0].Id, UserId = salomeChikvaidze.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-1).AddDays(-12) },
+
+                new Registration { EventId = events[2].Id, UserId = irakliMchedlishvili.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(1).AddDays(1) },
+                new Registration { EventId = events[0].Id, UserId = ketevanJaparidze.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(1).AddDays(5) },
+                new Registration { EventId = events[1].Id, UserId = levanKharatishvili.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(1).AddDays(10) },
+              };
             context.Registrations.AddRange(registrations);
             context.SaveChanges();
         }

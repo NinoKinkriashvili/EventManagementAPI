@@ -22,7 +22,7 @@ namespace Pied_Piper.DTOs.Event
         [Required]
         public DateTime EndDateTime { get; set; }
 
-        public DateTime? RegistrationDeadline { get; set; } // NEW
+        public DateTime? RegistrationDeadline { get; set; }
 
         [Required]
         [MaxLength(200)]
@@ -32,10 +32,6 @@ namespace Pied_Piper.DTOs.Event
         [MaxLength(200)]
         public string VenueName { get; set; } = string.Empty;
 
-        //[Required]
-        //[Range(1, 10000)]
-        //public int Capacity { get; set; }  
-
         [Required]
         [Range(1, 10000)]
         public int MinCapacity { get; set; }
@@ -43,18 +39,14 @@ namespace Pied_Piper.DTOs.Event
         [Required]
         [Range(1, 10000)]
         public int MaxCapacity { get; set; }
-
-        // NEW: Waitlist settings
         public bool WaitlistEnabled { get; set; } = true;
         public int? WaitlistCapacity { get; set; }
         public bool AutoApprove { get; set; } = true;
 
         public string? ImageUrl { get; set; }
-        public bool IsVisible { get; set; } = true; // NEW
+        public bool IsVisible { get; set; } = true;
 
         public List<int> TagIds { get; set; } = new();
-
-        // NEW: Speakers and Agenda
         public List<SpeakerDto> Speakers { get; set; } = new();
         public List<AgendaItemDto> Agenda { get; set; } = new();
     }

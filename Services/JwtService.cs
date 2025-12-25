@@ -38,7 +38,7 @@ namespace Pied_Piper.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.FullName),
                 new Claim("Department", departmentName),
-                new Claim("IsAdmin", user.IsAdmin.ToString()), // NEW
+                new Claim("IsAdmin", user.IsAdmin.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

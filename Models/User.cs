@@ -6,9 +6,9 @@
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-
+        public string? PhoneNumber { get; set; }
         public int DepartmentId { get; set; }
-        public bool IsAdmin { get; set; } = false; // NEW
+        public bool IsAdmin { get; set; } = false;
 
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

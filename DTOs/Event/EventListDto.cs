@@ -12,12 +12,12 @@ public class EventListDto
     public string VenueName { get; set; } = string.Empty;
 
     // Calculated
-    public int CurrentCapacity { get; set; } // Current confirmed count
+    public int CurrentCapacity { get; set; }
     public int MinCapacity { get; set; }
     public int MaxCapacity { get; set; }
 
     public int ConfirmedCount { get; set; }
-    public bool IsFull { get; set; } // ConfirmedCount >= MaxCapacity
+    public bool IsFull { get; set; }
     public string? ImageUrl { get; set; }
     public List<string> Tags { get; set; } = new();
 }

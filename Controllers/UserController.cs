@@ -16,7 +16,7 @@ namespace Pied_Piper.Controllers
             _userRepository = userRepository;
         }
 
-        // GET: api/user
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -27,7 +27,8 @@ namespace Pied_Piper.Controllers
                 Id = u.Id,
                 Email = u.Email,
                 FullName = u.FullName,
-                DepartmentName = u.Department.Name, // Fixed: was u.Department.Name
+                PhoneNumber = u.PhoneNumber,
+                DepartmentName = u.Department.Name,
                 IsAdmin = u.IsAdmin,
                 IsActive = u.IsActive,
                 CreatedAt = u.CreatedAt
@@ -50,7 +51,8 @@ namespace Pied_Piper.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                DepartmentName = user.Department.Name, // Fixed: was u.Department.Name
+                PhoneNumber = user.PhoneNumber,
+                DepartmentName = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
@@ -75,6 +77,7 @@ namespace Pied_Piper.Controllers
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
                 DepartmentName = user.Department.Name,
                 IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive,

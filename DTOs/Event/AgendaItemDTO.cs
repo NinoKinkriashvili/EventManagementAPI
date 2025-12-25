@@ -2,7 +2,7 @@
 {
     public class AgendaItemDto
     {
-        public int? Id { get; set; } // Nullable for create requests
+        public int? Id { get; set; }
         public string Time { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }

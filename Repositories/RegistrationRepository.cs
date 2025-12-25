@@ -68,7 +68,6 @@ namespace Pied_Piper.Repositories
             _context.Registrations.Add(registration);
             await _context.SaveChangesAsync();
 
-            // Load relations
             await _context.Entry(registration).Reference(r => r.Event).LoadAsync();
             await _context.Entry(registration).Reference(r => r.User).LoadAsync();
             await _context.Entry(registration).Reference(r => r.Status).LoadAsync();

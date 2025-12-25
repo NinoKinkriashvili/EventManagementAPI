@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Pied_Piper.Data;
 using Pied_Piper.DTOs;
 using Pied_Piper.DTOs.Event;
@@ -11,7 +12,6 @@ namespace Pied_Piper.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")] 
-    // [Authorize] // Uncomment when you want to protect all admin endpoints
     public class AdminController : ControllerBase
     {
         private readonly IEventRepository _eventRepository;
@@ -23,55 +23,72 @@ namespace Pied_Piper.Controllers
             _context = context;
         }
 
-        // GET: api/admin/events/all-including-hidden
         [HttpGet("events/all-including-hidden")]
         public async Task<IActionResult> GetAllIncludingHidden()
         {
             var events = await _eventRepository.GetAllIncludingHiddenAsync();
 
-            var result = events.Select(e => new EventDetailsDto
+            var result = events.Select(e =>
             {
-                Id = e.Id,
-                Title = e.Title,
-                Description = e.Description,
-                EventTypeName = e.EventType.Name,
-                CategoryId = e.CategoryId,
-                CategoryTitle = e.Category.Title,
-                StartDateTime = e.StartDateTime,
-                EndDateTime = e.EndDateTime,
-                RegistrationDeadline = e.RegistrationDeadline,
-                Location = e.Location,
-                VenueName = e.VenueName,
-                CurrentCapacity = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                MinCapacity = e.MinCapacity,
-                MaxCapacity = e.MaxCapacity,
-                WaitlistEnabled = e.WaitlistEnabled,
-                WaitlistCapacity = e.WaitlistCapacity,
-                AutoApprove = e.AutoApprove,
-                ImageUrl = e.ImageUrl,
-                IsVisible = e.IsVisible,
-                ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
-                IsFull = e.Registrations.Count(r => r.Status.Name == "Confirmed") >= e.MaxCapacity,
-                Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
-                CreatedByName = e.CreatedBy.FullName,
-                Speakers = e.Speakers.Select(s => new SpeakerDto
+                var confirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed");
+
+                return new EventDetailsDto
                 {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Role = s.Role,
-                    PhotoUrl = s.PhotoUrl
-                }).ToList(),
-                Agenda = e.AgendaItems.Select(a => new AgendaItemDto
-                {
-                    Id = a.Id,
-                    Time = a.Time,
-                    Title = a.Title,
-                    Description = a.Description
-                }).ToList()
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    EventTypeName = e.EventType.Name,
+                    CategoryId = e.CategoryId,
+                    CategoryTitle = e.Category.Title,
+                    StartDateTime = e.StartDateTime,
+                    EndDateTime = e.EndDateTime,
+                    RegistrationDeadline = e.RegistrationDeadline,
+                    Location = e.Location,
+                    VenueName = e.VenueName,
+                    CurrentCapacity = confirmedCount,
+                    MaxCapacity = e.MaxCapacity,
+                    AvailableSlots = e.MaxCapacity - confirmedCount,
+                    EventStatus = GetEventStatus(e),
+                    AutoApprove = e.AutoApprove,
+                    ImageUrl = e.ImageUrl,
+                    IsVisible = e.IsVisible,
+                    Tags = e.EventTags.Select(et => et.Tag.Name).ToList(),
+                    CreatedByName = e.CreatedBy.FullName,
+                    Speakers = e.Speakers.Select(s => new SpeakerDto
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Role = s.Role,
+                        PhotoUrl = s.PhotoUrl
+                    }).ToList(),
+                    Agenda = e.AgendaItems.Select(a => new AgendaItemDto
+                    {
+                        Id = a.Id,
+                        Time = a.Time,
+                        Title = a.Title,
+                        Description = a.Description
+                    }).ToList()
+                };
             });
 
             return Ok(result);
+        }
+
+        // Helper method for AdminController
+        private static string GetEventStatus(Event e)
+        {
+            var confirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed");
+
+            if (confirmedCount >= e.MaxCapacity)
+            {
+                if (e.WaitlistEnabled)
+                {
+                    return "Waitlisted";
+                }
+                return "Full";
+            }
+
+            return "Available";
         }
 
         // POST: api/admin/events
@@ -84,9 +101,6 @@ namespace Pied_Piper.Controllers
             // Validation
             if (request.StartDateTime >= request.EndDateTime)
                 return BadRequest("StartDateTime must be before EndDateTime");
-
-            if (request.RegistrationDeadline.HasValue && request.RegistrationDeadline >= request.StartDateTime)
-                return BadRequest("Registration deadline must be before event start time");
 
             if (request.MinCapacity > request.MaxCapacity)
                 return BadRequest("MinCapacity cannot be greater than MaxCapacity");
@@ -109,7 +123,7 @@ namespace Pied_Piper.Controllers
                 AutoApprove = request.AutoApprove,
                 ImageUrl = request.ImageUrl,
                 IsVisible = request.IsVisible,
-                CreatedById = 1  // TODO: Get from authentication
+                CreatedById = 1
             };
 
             var created = await _eventRepository.CreateAsync(ev);
@@ -172,12 +186,10 @@ namespace Pied_Piper.Controllers
             if (request.MinCapacity > request.MaxCapacity)
                 return BadRequest("MinCapacity cannot be greater than MaxCapacity");
 
-            // Check if new MaxCapacity is less than current confirmed registrations
             var confirmedCount = ev.Registrations.Count(r => r.Status.Name == "Confirmed");
             if (request.MaxCapacity < confirmedCount)
                 return BadRequest($"MaxCapacity cannot be less than confirmed registrations ({confirmedCount})");
 
-            // Update properties
             ev.Title = request.Title;
             ev.Description = request.Description;
             ev.EventTypeId = request.EventTypeId;
@@ -308,6 +320,70 @@ namespace Pied_Piper.Controllers
             await _eventRepository.UpdateAsync(ev);
 
             return Ok(new { message = $"Event visibility updated to {request.IsVisible}", isVisible = ev.IsVisible });
+        }
+
+        // GET: api/admin/events/{eventId}/waitlist
+        [HttpGet("events/{eventId}/users")]
+        public async Task<IActionResult> GetEventUsers(int eventId)
+        {
+            var ev = await _eventRepository.GetByIdAsync(eventId);
+            if (ev == null)
+                return NotFound(new { message = "Event not found" });
+
+            // Get confirmed registrations
+            var confirmedRegistrations = await _context.Registrations
+                .Include(r => r.User)
+                    .ThenInclude(u => u.Department)
+                .Include(r => r.Status)
+                .Where(r => r.EventId == eventId && r.Status.Name == "Confirmed")
+                .OrderBy(r => r.RegisteredAt)
+                .ToListAsync();
+
+            // Get waitlisted registrations
+            var waitlistedRegistrations = await _context.Registrations
+                .Include(r => r.User)
+                    .ThenInclude(u => u.Department)
+                .Include(r => r.Status)
+                .Where(r => r.EventId == eventId && r.Status.Name == "Waitlisted")
+                .OrderBy(r => r.RegisteredAt)
+                .ToListAsync();
+
+            var confirmedResult = confirmedRegistrations.Select((r, index) => new
+            {
+                position = index + 1,
+                registrationId = r.Id,
+                userId = r.UserId,
+                userName = r.User.FullName,
+                userEmail = r.User.Email,
+                department = r.User.Department.Name,
+                status = "Confirmed",
+                registeredAt = r.RegisteredAt
+            });
+
+            var waitlistedResult = waitlistedRegistrations.Select((r, index) => new
+            {
+                position = index + 1,
+                registrationId = r.Id,
+                userId = r.UserId,
+                userName = r.User.FullName,
+                userEmail = r.User.Email,
+                department = r.User.Department.Name,
+                status = "Waitlisted",
+                registeredAt = r.RegisteredAt
+            });
+
+            return Ok(new
+            {
+                eventId = eventId,
+                eventTitle = ev.Title,
+                maxCapacity = ev.MaxCapacity,
+                totalConfirmed = confirmedRegistrations.Count,
+                totalWaitlisted = waitlistedRegistrations.Count,
+                waitlistCapacity = ev.WaitlistCapacity,
+                availableSlots = Math.Max(0, ev.MaxCapacity - confirmedRegistrations.Count),
+                confirmed = confirmedResult,
+                waitlist = waitlistedResult
+            });
         }
     }
 }
