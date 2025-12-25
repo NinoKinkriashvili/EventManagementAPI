@@ -69,7 +69,7 @@
         public int CurrentCapacity { get; set; }
         public int MaxCapacity { get; set; }
         public int AvailableSlots { get; set; }
-        public int WaitlistedCount { get; set; } // ADD THIS LINE
+        public int WaitlistedCount { get; set; }
         public string EventStatus { get; set; } = string.Empty;
         public decimal UtilizationRate { get; set; }
     }
@@ -91,9 +91,9 @@
     {
         public int TotalEvents { get; set; }
         public int UpcomingEvents { get; set; }
-        public int AvailableEvents { get; set; } // NEW
-        public int FullEvents { get; set; } // NEW
-        public int WaitlistedEvents { get; set; } // NEW
+        public int AvailableEvents { get; set; }
+        public int FullEvents { get; set; }
+        public int WaitlistedEvents { get; set; }
         public int CompletedEvents { get; set; }
     }
 

@@ -1,7 +1,6 @@
-﻿using Pied_Piper.DTOs.Event;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Pied_Piper.DTOs
+namespace Pied_Piper.DTOs.Event
 {
     public class UpdateEventRequest
     {
@@ -23,7 +22,7 @@ namespace Pied_Piper.DTOs
         [Required]
         public DateTime EndDateTime { get; set; }
 
-        public DateTime? RegistrationDeadline { get; set; } // NEW
+        public DateTime? RegistrationDeadline { get; set; }
 
         [Required]
         [MaxLength(200)]
@@ -33,10 +32,6 @@ namespace Pied_Piper.DTOs
         [MaxLength(200)]
         public string VenueName { get; set; } = string.Empty;
 
-        //[Required]
-        //[Range(1, 10000)]
-        //public int Capacity { get; set; }
-
         [Required]
         [Range(1, 10000)]
         public int MinCapacity { get; set; }
@@ -45,7 +40,6 @@ namespace Pied_Piper.DTOs
         [Range(1, 10000)]
         public int MaxCapacity { get; set; }
 
-        // NEW: Waitlist settings
         public bool WaitlistEnabled { get; set; } = true;
         public int? WaitlistCapacity { get; set; }
         public bool AutoApprove { get; set; } = true;
@@ -54,7 +48,6 @@ namespace Pied_Piper.DTOs
 
         public List<int> TagIds { get; set; } = new();
 
-        // NEW: Speakers and Agenda
         public List<SpeakerDto> Speakers { get; set; } = new();
         public List<AgendaItemDto> Agenda { get; set; } = new();
     }

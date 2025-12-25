@@ -1,0 +1,109 @@
+stages:
+  - build
+  - docker
+  - deploy
+
+variables:
+  DOCKER_IMAGE: "$DOCKER_USERNAME/event-backend"
+
+default:
+  tags:
+    - docker
+
+# ---------------- BUILD (Restore + Build ერთ job-ში) ----------------
+build_backend:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .nuget/packages/
+      - obj/
+      - bin/
+  script:
+    # Restore + Build ერთად
+    - dotnet restore EventManagementAPI.csproj
+    - dotnet build EventManagementAPI.csproj -c Release
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+
+
+# ---------------- DOCKER ----------------
+docker_backend:
+  stage: docker
+  image: docker:24
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
+  script:
+  - |
+    if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
+      TAG="${CI_COMMIT_SHORT_SHA}-staging"
+    elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+      TAG="${CI_COMMIT_SHORT_SHA}-production"
+    else
+      echo "No env tag for this branch"
+      exit 0
+    fi
+
+    echo "Using tag: $TAG"
+    docker build -t $DOCKER_IMAGE:$TAG .
+    docker push $DOCKER_IMAGE:$TAG
+    echo "TAG=$TAG" >> backend_tag.env
+
+
+  artifacts:
+    reports:
+      dotenv: backend_tag.env
+    
+  rules:
+  - if: '$CI_COMMIT_BRANCH'
+
+    
+
+# ---------------- PRODUCTION ----------------
+deploy_backend:
+  stage: deploy
+  image: alpine
+  before_script:
+    - apk add --no-cache openssh
+    - mkdir -p ~/.ssh
+    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_rsa   
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+  script:
+    - echo "Deploying tag:$TAG"
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "develop" ]]; then
+        VM_HOST=$SSH_HOST
+      elif [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+        VM_HOST=$SSH_HOST
+      else
+        echo "No deploy for this branch"
+        exit 0
+      fi
+
+    - echo "$VM_HOST"
+
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "
+        cd /opt/myapp &&
+        export BACKEND_TAG=$TAG &&
+        docker compose pull backend &&
+        docker compose up -d backend
+      "
+  tags:
+    - docker    
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+
+  
+
+
+
+

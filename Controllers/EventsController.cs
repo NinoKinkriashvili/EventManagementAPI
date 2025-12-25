@@ -58,7 +58,7 @@ namespace Pied_Piper.Controllers
                 RegistrationDeadline = e.RegistrationDeadline,
                 Location = e.Location,
                 VenueName = e.VenueName,
-                CurrentCapacity = confirmedCount, // NEW - Current registrations
+                CurrentCapacity = confirmedCount,
                 MaxCapacity = e.MaxCapacity,
                 AvailableSlots = GetAvailableSlots(e),
                 EventStatus = GetEventStatus(e),

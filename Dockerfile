@@ -1,21 +1,17 @@
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# -------- Runtime --------
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+EXPOSE 5282
 
+# -------- Build --------
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-COPY *.csproj ./
-RUN dotnet restore
+COPY . .
+RUN dotnet publish EventManagementAPI.csproj -c Release -o /app/publish
 
-
-COPY . ./
-RUN dotnet publish -c Release -o /app/publish
-
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# -------- Final --------
+FROM runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-
-
-EXPOSE 5000
-
-ENTRYPOINT ["dotnet", "backend.dll"]
+ENTRYPOINT ["dotnet", "EventManagementAPI.dll"]

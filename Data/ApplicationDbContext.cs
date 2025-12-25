@@ -22,6 +22,8 @@ namespace Pied_Piper.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Speaker> Speakers { get; set; }
         public DbSet<AgendaItem> AgendaItems { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -152,7 +154,7 @@ namespace Pied_Piper.Data
                     .HasMaxLength(500);
 
                 entity.Property(u => u.PhoneNumber)
-                    .HasMaxLength(20); // NEW - Optional phone number
+                    .HasMaxLength(20);
 
                 entity.Property(u => u.IsAdmin)
                     .HasDefaultValue(false);
@@ -348,6 +350,49 @@ namespace Pied_Piper.Data
 
                 entity.HasIndex(t => t.Name)
                     .IsUnique();
+            });
+
+            // ============================================
+            // NOTIFICATION CONFIGURATION
+            // ============================================
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+
+                entity.Property(n => n.Title)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(n => n.Message)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+
+                entity.Property(n => n.Type)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(n => n.IsSeen)
+                    .HasDefaultValue(false);
+
+                entity.Property(n => n.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                // One-to-Many: Users -> Notifications
+                entity.HasOne(n => n.User)
+                    .WithMany()
+                    .HasForeignKey(n => n.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // One-to-Many: Events -> Notifications (optional)
+                entity.HasOne(n => n.Event)
+                    .WithMany()
+                    .HasForeignKey(n => n.EventId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .IsRequired(false);
+
+                // Index for faster queries
+                entity.HasIndex(n => new { n.UserId, n.IsSeen });
+                entity.HasIndex(n => n.CreatedAt);
             });
         }
     }

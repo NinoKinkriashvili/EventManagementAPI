@@ -44,7 +44,6 @@ namespace Pied_Piper.Repositories
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Load the department after creation
             await _context.Entry(user).Reference(u => u.Department).LoadAsync();
 
             return user;
@@ -63,7 +62,7 @@ namespace Pied_Piper.Repositories
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
-                user.IsActive = false; // Soft delete
+                user.IsActive = false;
                 await _context.SaveChangesAsync();
             }
         }

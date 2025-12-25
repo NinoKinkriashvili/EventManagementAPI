@@ -43,7 +43,7 @@ namespace Pied_Piper.Controllers
             [FromQuery] DateTime? endDate,
             [FromQuery] int? categoryId,
             [FromQuery] string? location,
-            [FromQuery] string? eventStatus) // NEW: Filter by "Available", "Full", "Waitlisted"
+            [FromQuery] string? eventStatus)
         {
             var start = startDate ?? DateTime.UtcNow.AddDays(-30);
             var end = endDate ?? DateTime.UtcNow;
@@ -61,148 +61,6 @@ namespace Pied_Piper.Controllers
             return Ok(analytics);
         }
 
-        //// GET: api/analytics/kpis
-        //[HttpGet("kpis")]
-        //public async Task<IActionResult> GetKPIsEndpoint(
-        //    [FromQuery] DateTime? startDate,
-        //    [FromQuery] DateTime? endDate,
-        //    [FromQuery] string? eventStatus)
-        //{
-        //    var start = startDate ?? DateTime.UtcNow.AddDays(-30);
-        //    var end = endDate ?? DateTime.UtcNow;
-
-        //    var kpis = await GetKPIs(start, end, null, null, eventStatus);
-        //    return Ok(kpis);
-        //}
-
-        //// GET: api/analytics/event-status-distribution
-        //[HttpGet("event-status-distribution")]
-        //public async Task<IActionResult> GetEventStatusDistributionEndpoint(
-        //    [FromQuery] DateTime? startDate,
-        //    [FromQuery] DateTime? endDate,
-        //    [FromQuery] int? categoryId,
-        //    [FromQuery] string? location)
-        //{
-        //    var start = startDate ?? DateTime.UtcNow.AddDays(-30);
-        //    var end = endDate ?? DateTime.UtcNow;
-
-        //    var distribution = await GetEventStatusDistribution(start, end, categoryId, location);
-        //    return Ok(distribution);
-        //}
-
-        //// GET: api/analytics/registration-trend
-        //[HttpGet("registration-trend")]
-        //public async Task<IActionResult> GetRegistrationTrendEndpoint(
-        //    [FromQuery] DateTime? startDate,
-        //    [FromQuery] DateTime? endDate)
-        //{
-        //    var start = startDate ?? DateTime.UtcNow.AddMonths(-12);
-        //    var end = endDate ?? DateTime.UtcNow;
-
-        //    var trend = await GetRegistrationTrend(start, end);
-        //    return Ok(trend);
-        //}
-
-        //// GET: api/analytics/category-distribution
-        //[HttpGet("category-distribution")]
-        //public async Task<IActionResult> GetCategoryDistributionEndpoint(
-        //    [FromQuery] DateTime? startDate,
-        //    [FromQuery] DateTime? endDate)
-        //{
-        //    var start = startDate ?? DateTime.UtcNow.AddDays(-30);
-        //    var end = endDate ?? DateTime.UtcNow;
-
-        //    var distribution = await GetCategoryDistribution(start, end);
-        //    return Ok(distribution);
-        //}
-
-        //// GET: api/analytics/top-events
-        //[HttpGet("top-events")]
-        //public async Task<IActionResult> GetTopEventsEndpoint(
-        //    [FromQuery] DateTime? startDate,
-        //    [FromQuery] DateTime? endDate,
-        //    [FromQuery] string? eventStatus,
-        //    [FromQuery] int limit = 10)
-        //{
-        //    var start = startDate ?? DateTime.UtcNow.AddDays(-30);
-        //    var end = endDate ?? DateTime.UtcNow;
-
-        //    var topEvents = await GetTopEvents(start, end, null, eventStatus, limit);
-        //    return Ok(topEvents);
-        //}
-
-        //// GET: api/analytics/department-participation
-        //[HttpGet("department-participation")]
-        //public async Task<IActionResult> GetDepartmentParticipationEndpoint(
-        //    [FromQuery] DateTime? startDate,
-        //    [FromQuery] DateTime? endDate)
-        //{
-        //    var start = startDate ?? DateTime.UtcNow.AddDays(-30);
-        //    var end = endDate ?? DateTime.UtcNow;
-
-        //    var participation = await GetDepartmentParticipation(start, end);
-        //    return Ok(participation);
-        //}
-
-        //// GET: api/analytics/event-status-summary
-        //[HttpGet("event-status-summary")]
-        //public async Task<IActionResult> GetEventStatusSummary()
-        //{
-        //    var now = DateTime.UtcNow;
-
-        //    var upcomingEvents = await _context.Events
-        //        .Include(e => e.Registrations)
-        //            .ThenInclude(r => r.Status)
-        //        .Where(e => e.IsActive && e.StartDateTime > now)
-        //        .ToListAsync();
-
-        //    var availableCount = upcomingEvents.Count(e => GetEventStatus(e) == "Available");
-        //    var fullCount = upcomingEvents.Count(e => GetEventStatus(e) == "Full");
-        //    var waitlistedCount = upcomingEvents.Count(e => GetEventStatus(e) == "Waitlisted");
-
-        //    var summary = new EventStatusSummary
-        //    {
-        //        TotalEvents = await _context.Events.CountAsync(e => e.IsActive),
-        //        UpcomingEvents = upcomingEvents.Count,
-        //        AvailableEvents = availableCount,
-        //        FullEvents = fullCount,
-        //        WaitlistedEvents = waitlistedCount,
-        //        CompletedEvents = await _context.Events.CountAsync(e => e.IsActive && e.EndDateTime < now)
-        //    };
-
-        //    return Ok(summary);
-        //}
-
-        //// GET: api/analytics/registration-status-summary
-        //[HttpGet("registration-status-summary")]
-        //public async Task<IActionResult> GetRegistrationStatusSummary()
-        //{
-        //    var confirmedStatusId = await _context.RegistrationStatuses
-        //        .Where(s => s.Name == "Confirmed")
-        //        .Select(s => s.Id)
-        //        .FirstOrDefaultAsync();
-
-        //    var waitlistedStatusId = await _context.RegistrationStatuses
-        //        .Where(s => s.Name == "Waitlisted")
-        //        .Select(s => s.Id)
-        //        .FirstOrDefaultAsync();
-
-        //    var cancelledStatusId = await _context.RegistrationStatuses
-        //        .Where(s => s.Name == "Cancelled")
-        //        .Select(s => s.Id)
-        //        .FirstOrDefaultAsync();
-
-        //    var summary = new RegistrationStatusSummary
-        //    {
-        //        TotalRegistrations = await _context.Registrations.CountAsync(),
-        //        ConfirmedRegistrations = await _context.Registrations.CountAsync(r => r.StatusId == confirmedStatusId),
-        //        WaitlistedRegistrations = await _context.Registrations.CountAsync(r => r.StatusId == waitlistedStatusId),
-        //        CancelledRegistrations = await _context.Registrations.CountAsync(r => r.StatusId == cancelledStatusId)
-        //    };
-
-        //    return Ok(summary);
-        //}
-
         // ============================================
         // PRIVATE HELPER METHODS
         // ============================================
@@ -214,14 +72,11 @@ namespace Pied_Piper.Controllers
             string? location,
             string? eventStatus)
         {
-            // Calculate period length
             var periodLength = endDate - startDate;
 
-            // Calculate previous period (same length)
             var previousStartDate = startDate.Add(-periodLength);
             var previousEndDate = startDate;
 
-            // Get current period events
             var eventQuery = _context.Events
                 .Include(e => e.Registrations)
                     .ThenInclude(r => r.Status)
@@ -243,7 +98,6 @@ namespace Pied_Piper.Controllers
 
             var eventIds = events.Select(e => e.Id).ToList();
 
-            // Get current period registrations
             var registrations = await _context.Registrations
                 .Include(r => r.Status)
                 .Where(r => eventIds.Contains(r.EventId) &&
@@ -266,8 +120,6 @@ namespace Pied_Piper.Controllers
             // ============================================
             // CALCULATE PREVIOUS PERIOD DATA
             // ============================================
-
-            // Get previous period events
             var previousEventQuery = _context.Events
                 .Include(e => e.Registrations)
                     .ThenInclude(r => r.Status)
@@ -289,7 +141,6 @@ namespace Pied_Piper.Controllers
 
             var previousEventIds = previousEvents.Select(e => e.Id).ToList();
 
-            // Get previous period registrations
             var previousRegistrations = await _context.Registrations
                 .Include(r => r.Status)
                 .Where(r => previousEventIds.Contains(r.EventId) &&
@@ -318,7 +169,7 @@ namespace Pied_Piper.Controllers
             var registrationsChange = CalculatePercentageChange(previousTotalRegistrations, totalRegistrations);
             var participantsChange = CalculatePercentageChange(previousActiveParticipants, activeParticipants);
             var eventsChange = CalculatePercentageChange(previousTotalEvents, events.Count);
-            var cancellationRateChange = cancellationRate - previousCancellationRate; // Percentage point change
+            var cancellationRateChange = cancellationRate - previousCancellationRate;
 
             var now = DateTime.UtcNow;
 
@@ -345,7 +196,7 @@ namespace Pied_Piper.Controllers
         {
             if (oldValue == 0)
             {
-                return newValue > 0 ? 100 : 0; // If old was 0 and new is positive, it's 100% increase
+                return newValue > 0 ? 100 : 0;
             }
 
             var change = ((decimal)(newValue - oldValue) / oldValue) * 100;
@@ -478,7 +329,7 @@ namespace Pied_Piper.Controllers
                 {
                     Event = e,
                     ConfirmedCount = e.Registrations.Count(r => r.Status.Name == "Confirmed"),
-                    WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"), // ADD THIS
+                    WaitlistedCount = e.Registrations.Count(r => r.Status.Name == "Waitlisted"),
                     EventStatus = GetEventStatus(e)
                 })
                 .OrderByDescending(x => x.ConfirmedCount)
@@ -493,7 +344,7 @@ namespace Pied_Piper.Controllers
                     CurrentCapacity = x.ConfirmedCount,
                     MaxCapacity = x.Event.MaxCapacity,
                     AvailableSlots = x.Event.MaxCapacity - x.ConfirmedCount,
-                    WaitlistedCount = x.WaitlistedCount, // ADD THIS
+                    WaitlistedCount = x.WaitlistedCount,
                     EventStatus = x.EventStatus,
                     UtilizationRate = x.Event.MaxCapacity > 0
                         ? Math.Round((decimal)x.ConfirmedCount / x.Event.MaxCapacity * 100, 2)

@@ -17,9 +17,9 @@ namespace Pied_Piper.DTOs
         public string VenueName { get; set; } = string.Empty;
 
         // Capacity info
-        public int CurrentCapacity { get; set; } // NEW - How many are registered
+        public int CurrentCapacity { get; set; }
         public int MaxCapacity { get; set; }
-        public int AvailableSlots { get; set; } // How many spots left
+        public int AvailableSlots { get; set; }
         public string EventStatus { get; set; } = string.Empty; // "Available", "Waitlisted", "Full"
 
         public bool AutoApprove { get; set; }

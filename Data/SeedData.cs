@@ -100,7 +100,7 @@ namespace Pied_Piper.Data
                     Email = "admin@company.com",
                     FullName = "Admin User",
                     Password = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-                    PhoneNumber = "+995555123456", // NEW
+                    PhoneNumber = "+995555123456",
                     DepartmentId = departments.First(d => d.Name == "Engineering").Id,
                     IsAdmin = true
                 },
@@ -109,7 +109,7 @@ namespace Pied_Piper.Data
                     Email = "organizer@company.com",
                     FullName = "Event Organizer",
                     Password = BCrypt.Net.BCrypt.HashPassword("Organizer123!"),
-                    PhoneNumber = "+995555234567", // NEW
+                    PhoneNumber = "+995555234567",
                     DepartmentId = departments.First(d => d.Name == "HR").Id,
                     IsAdmin = true
                 },
@@ -118,7 +118,7 @@ namespace Pied_Piper.Data
                     Email = "john.doe@company.com",
                     FullName = "John Doe",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    PhoneNumber = "+995555345678", // NEW
+                    PhoneNumber = "+995555345678",
                     DepartmentId = departments.First(d => d.Name == "Engineering").Id,
                     IsAdmin = false
                 },
@@ -127,7 +127,7 @@ namespace Pied_Piper.Data
                     Email = "jane.smith@company.com",
                     FullName = "Jane Smith",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    PhoneNumber = "+995555456789", // NEW
+                    PhoneNumber = "+995555456789",
                     DepartmentId = departments.First(d => d.Name == "Marketing").Id,
                     IsAdmin = false
                 },
@@ -136,7 +136,7 @@ namespace Pied_Piper.Data
                     Email = "mike.wilson@company.com",
                     FullName = "Mike Wilson",
                     Password = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
-                    PhoneNumber = "+995555567890", // NEW
+                    PhoneNumber = "+995555567890", 
                     DepartmentId = departments.First(d => d.Name == "Sales").Id,
                     IsAdmin = false
                 },
@@ -317,7 +317,6 @@ namespace Pied_Piper.Data
             // ============================================
             var events = new Event[]
             {
-                // January 2026
                 new Event
                 {
                     Title = "New Year Kickoff Meeting",
@@ -358,8 +357,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
                     CreatedById = organizerUser.Id
                 },
-                
-                // February 2026
                 new Event
                 {
                     Title = "Valentine's Day Team Lunch",
@@ -400,8 +397,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1546519638-68e109498ffc",
                     CreatedById = adminUser.Id
                 },
-
-                // March 2026
                 new Event
                 {
                     Title = "International Women's Day Celebration",
@@ -442,8 +437,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1633356122544-f134324a6cee",
                     CreatedById = organizerUser.Id
                 },
-
-                // April 2026
                 new Event
                 {
                     Title = "Spring Team Building Retreat",
@@ -484,8 +477,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1506126613408-eca07ce68773",
                     CreatedById = adminUser.Id
                 },
-
-                // May 2026
                 new Event
                 {
                     Title = "Cloud Computing Masterclass",
@@ -526,8 +517,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
                     CreatedById = adminUser.Id
                 },
-
-                // June 2026
                 new Event
                 {
                     Title = "Summer Networking BBQ",
@@ -568,8 +557,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1677442136019-21780ecad995",
                     CreatedById = adminUser.Id
                 },
-
-                // July 2026
                 new Event
                 {
                     Title = "Summer Olympics Watch Party",
@@ -650,8 +637,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1",
                     CreatedById = organizerUser.Id
                 },
-
-                // Past: 2025 
                 new Event
                 {
                     Title = "January 2025 New Joiners Orientation",
@@ -712,8 +697,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1677442136019-21780ecad995",
                     CreatedById = adminUser.Id
                 },
-
-                // Dec 2025
                 new Event
                 {
                     Title = "December 2025 Year-End Review",
@@ -734,8 +717,6 @@ namespace Pied_Piper.Data
                     ImageUrl = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622",
                     CreatedById = organizerUser.Id
                 },
-
-                // 2026 / 2027 
                 new Event
                 {
                     Title = "Autumn 2026 Leadership Workshop",
@@ -785,7 +766,6 @@ namespace Pied_Piper.Data
             // ============================================
             var speakers = new Speaker[]
             {
-                // Python Workshop
                 new Speaker
                 {
                     EventId = events[1].Id,
@@ -793,8 +773,6 @@ namespace Pied_Piper.Data
                     Role = "Python Expert & Data Scientist",
                     PhotoUrl = "https://i.pravatar.cc/150?img=1"
                 },
-                
-                // React Workshop
                 new Speaker
                 {
                     EventId = events[5].Id,
@@ -809,8 +787,6 @@ namespace Pied_Piper.Data
                     Role = "Frontend Architect",
                     PhotoUrl = "https://i.pravatar.cc/150?img=5"
                 },
-                
-                // Cloud Computing
                 new Speaker
                 {
                     EventId = events[8].Id,
@@ -818,8 +794,6 @@ namespace Pied_Piper.Data
                     Role = "Cloud Solutions Architect",
                     PhotoUrl = "https://i.pravatar.cc/150?img=13"
                 },
-                
-                // AI Summit
                 new Speaker
                 {
                     EventId = events[11].Id,
@@ -834,8 +808,6 @@ namespace Pied_Piper.Data
                     Role = "ML Engineer",
                     PhotoUrl = "https://i.pravatar.cc/150?img=14"
                 },
-                
-                // Wellness Seminar
                 new Speaker
                 {
                     EventId = events[7].Id,
@@ -852,27 +824,23 @@ namespace Pied_Piper.Data
             // ============================================
             var agendaItems = new AgendaItem[]
             {
-                // Python Workshop
                 new AgendaItem { EventId = events[1].Id, Time = "14:00-14:30", Title = "Introduction to Python", Description = "Basics and setup" },
                 new AgendaItem { EventId = events[1].Id, Time = "14:30-15:30", Title = "Python Fundamentals", Description = "Variables, loops, functions" },
                 new AgendaItem { EventId = events[1].Id, Time = "15:30-16:30", Title = "Hands-on Coding", Description = "Build your first Python program" },
                 new AgendaItem { EventId = events[1].Id, Time = "16:30-17:00", Title = "Q&A Session", Description = "Ask your questions" },
                 
-                // React Workshop
                 new AgendaItem { EventId = events[5].Id, Time = "10:00-11:00", Title = "Advanced Hooks", Description = "useCallback, useMemo, custom hooks" },
                 new AgendaItem { EventId = events[5].Id, Time = "11:00-12:30", Title = "State Management", Description = "Context API and Redux patterns" },
                 new AgendaItem { EventId = events[5].Id, Time = "12:30-13:30", Title = "Lunch Break", Description = null },
                 new AgendaItem { EventId = events[5].Id, Time = "13:30-15:00", Title = "Performance Optimization", Description = "React.memo, lazy loading" },
                 new AgendaItem { EventId = events[5].Id, Time = "15:00-16:00", Title = "Best Practices", Description = "Code organization and patterns" },
                 
-                // Team Building
                 new AgendaItem { EventId = events[6].Id, Time = "09:00-09:30", Title = "Welcome & Icebreakers", Description = "Get to know each other" },
                 new AgendaItem { EventId = events[6].Id, Time = "09:30-12:00", Title = "Team Challenges", Description = "Problem-solving activities" },
                 new AgendaItem { EventId = events[6].Id, Time = "12:00-13:00", Title = "Lunch", Description = "BBQ lunch provided" },
                 new AgendaItem { EventId = events[6].Id, Time = "13:00-16:00", Title = "Outdoor Activities", Description = "Sports and games" },
                 new AgendaItem { EventId = events[6].Id, Time = "16:00-17:00", Title = "Wrap-up", Description = "Team reflections" },
                 
-                // Cloud Computing
                 new AgendaItem { EventId = events[8].Id, Time = "09:00-10:30", Title = "AWS Fundamentals", Description = "EC2, S3, Lambda" },
                 new AgendaItem { EventId = events[8].Id, Time = "10:30-12:00", Title = "Azure Overview", Description = "VMs, Storage, Functions" },
                 new AgendaItem { EventId = events[8].Id, Time = "12:00-13:00", Title = "Lunch Break", Description = null },
@@ -880,7 +848,6 @@ namespace Pied_Piper.Data
                 new AgendaItem { EventId = events[8].Id, Time = "14:30-16:00", Title = "Multi-Cloud Strategy", Description = "Best practices" },
                 new AgendaItem { EventId = events[8].Id, Time = "16:00-17:00", Title = "Hands-on Lab", Description = "Deploy a real application" },
                 
-                // AI Summit
                 new AgendaItem { EventId = events[11].Id, Time = "09:00-10:00", Title = "Keynote: Future of AI", Description = "Industry trends and predictions" },
                 new AgendaItem { EventId = events[11].Id, Time = "10:00-12:00", Title = "ML in Business", Description = "Real-world case studies" },
                 new AgendaItem { EventId = events[11].Id, Time = "12:00-13:00", Title = "Networking Lunch", Description = null },
@@ -968,7 +935,6 @@ namespace Pied_Piper.Data
 
             var registrations = new Registration[]
             {
-                // Some confirmed registrations
                 new Registration { EventId = events[0].Id, UserId = johnDoe.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-5) },
                 new Registration { EventId = events[0].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-4) },
                 new Registration { EventId = events[0].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-3) },
@@ -982,10 +948,9 @@ namespace Pied_Piper.Data
 
                 new Registration { EventId = events[5].Id, UserId = janeSmith.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-6) },
                 new Registration { EventId = events[5].Id, UserId = mikeWilson.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-5) },
-                // new
                 new Registration { EventId = events[11].Id, UserId = johnDoe.Id, StatusId = waitlistedStatus.Id, RegisteredAt = DateTime.UtcNow.AddDays(-1) },
-                  new Registration { EventId = events[0].Id, UserId = manoTiler.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-3) },
-                  new Registration { EventId = events[1].Id, UserId = shakoGernava.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-1).AddDays(-7) },
+                new Registration { EventId = events[0].Id, UserId = manoTiler.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-3) },
+                new Registration { EventId = events[1].Id, UserId = shakoGernava.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-1).AddDays(-7) },
                 new Registration { EventId = events[2].Id, UserId = lileJanjgava.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(1).AddDays(2)},
 
                 new Registration { EventId = events[0].Id, UserId = ninoKiknadze.Id, StatusId = confirmedStatus.Id, RegisteredAt = DateTime.UtcNow.AddMonths(-2).AddDays(-2) },
