@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pied_Piper.DTOs;
 using Pied_Piper.DTOs.Event;
@@ -8,6 +9,7 @@ namespace Pied_Piper.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class EventsController : ControllerBase
     {
         private readonly IEventRepository _eventRepository;

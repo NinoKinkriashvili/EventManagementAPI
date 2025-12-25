@@ -98,10 +98,14 @@ builder.Services.AddCors(options =>
         {
             // Production: Use configured origins
             policy
-                .WithOrigins(allowedOrigins)
+                //.WithOrigins(allowedOrigins)
+                //.AllowAnyHeader()
+                //.AllowAnyMethod()
+                //.AllowCredentials();
+
+                .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowAnyMethod();
         }
         else
         {
