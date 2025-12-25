@@ -84,11 +84,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // ============================================
-// CORS - FIXED FOR PRODUCTION
+// CORS
 // ============================================
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddDefaultPolicy(policy =>
     {
         var allowedOrigins = builder.Configuration
             .GetSection("AllowedOrigins")
@@ -96,25 +96,20 @@ builder.Services.AddCors(options =>
 
         if (allowedOrigins.Length > 0)
         {
+            // Production: Use configured origins
             policy
                 .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials()
-                .SetIsOriginAllowedToAllowWildcardSubdomains();
+                .AllowCredentials();
         }
         else
         {
-            // Fallback for development if no origins configured
+            // Development: Allow all origins (no credentials)
             policy
-                .WithOrigins(
-                    "http://localhost:4200",
-                    "http://localhost:3000",
-                    "http://localhost:8100"
-                )
+                .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowAnyMethod();
         }
     });
 });
