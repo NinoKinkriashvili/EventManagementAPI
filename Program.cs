@@ -84,21 +84,38 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // ============================================
-// CORS
+// CORS - FIXED FOR PRODUCTION
 // ============================================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy
-            .WithOrigins(
-                "http://localhost:4200",      // Angular dev
-                "http://localhost:3000",      // React dev
-                "http://localhost:8100"       // Mobile dev
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        var allowedOrigins = builder.Configuration
+            .GetSection("AllowedOrigins")
+            .Get<string[]>() ?? Array.Empty<string>();
+
+        if (allowedOrigins.Length > 0)
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .SetIsOriginAllowedToAllowWildcardSubdomains();
+        }
+        else
+        {
+            // Fallback for development if no origins configured
+            policy
+                .WithOrigins(
+                    "http://localhost:4200",
+                    "http://localhost:3000",
+                    "http://localhost:8100"
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
     });
 });
 
@@ -177,7 +194,7 @@ if (app.Environment.IsDevelopment())
 // ============================================
 
 // Swagger
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableSwaggerInProduction"))
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -186,14 +203,22 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// HTTPS Redirection
 app.UseHttpsRedirection();
 
+// CORS - Must be BEFORE Authentication and Authorization
 app.UseCors("AllowFrontend");
 
+// Authentication
 app.UseAuthentication();
 
+// Authorization
 app.UseAuthorization();
 
+// Map Controllers
 app.MapControllers();
 
+// ============================================
+// RUN APPLICATION
+// ============================================
 app.Run();
