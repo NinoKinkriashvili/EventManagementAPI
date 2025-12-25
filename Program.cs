@@ -114,6 +114,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 // ============================================
 // SWAGGER / OPENAPI
 // ============================================
@@ -229,7 +230,7 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableS
 app.UseHttpsRedirection();
 
 // CORS - Must be BEFORE Authentication and Authorization
-app.UseCors("AllowFrontend");
+app.UseCors();
 
 // Authentication
 app.UseAuthentication();
